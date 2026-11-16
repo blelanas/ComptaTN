@@ -76,7 +76,8 @@ Configuration, une seule fois :
    `FIREBASE_SERVICE_ACCOUNT` et y coller tout le contenu du fichier JSON. Ce
    fichier ne doit jamais être commité.
 
-L’identifiant du projet est lu automatiquement dans la clé.
+L’identifiant du projet est lu automatiquement dans la clé. Le site déployé est
+`raqib-tn` (`firebase.json`), soit https://raqib-tn.web.app.
 
 ### Base de données et connexion (une seule fois)
 
