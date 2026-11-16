@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* ───────────────────────── Qayd design tokens ─────────────────────────
+   Paper-warm neutrals, a "Sidi Bou Saïd" blue for actions and a
+   terracotta accent (Nabeul pottery) used sparingly for highlights. */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --font-arabic: "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
+
+  --color-paper: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-line: #e8e4dc;
+  --color-line-strong: #d6d0c4;
+  --color-ink: #161a26;
+  --color-ink-soft: #2e3342;
+  --color-muted: #646a78;
+  --color-faint: #9097a3;
+
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dce7fe;
+  --color-brand-200: #b9cffc;
+  --color-brand-300: #8eb0f7;
+  --color-brand-400: #5b88ec;
+  --color-brand-500: #3369dd;
+  --color-brand-600: #1f57c7;
+  --color-brand-700: #1a47a3;
+  --color-brand-800: #183c83;
+  --color-brand-900: #142f63;
+  --color-brand-950: #0c1b3a;
+
+  --color-clay-50: #fdf3ee;
+  --color-clay-100: #fae3d7;
+  --color-clay-200: #f4c4ab;
+  --color-clay-400: #e58a5e;
+  --color-clay-500: #d96c3b;
+  --color-clay-600: #c2552a;
+  --color-clay-700: #9c4222;
+
+  --color-success-50: #ecfdf3;
+  --color-success-600: #138a4b;
+  --color-danger-50: #fef2f2;
+  --color-danger-600: #c8322b;
+  --color-warning-50: #fffaeb;
+  --color-warning-600: #b25e09;
+
+  --shadow-card: 0 1px 2px rgb(22 26 38 / 0.04), 0 1px 1px rgb(22 26 38 / 0.03);
+  --shadow-pop: 0 12px 32px -8px rgb(22 26 38 / 0.18), 0 2px 6px rgb(22 26 38 / 0.06);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-paper text-ink font-sans;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: var(--color-brand-100);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 h-9 text-sm font-semibold
+      transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap;
+  }
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply bg-surface text-ink border border-line-strong hover:bg-paper;
+  }
+  .btn-ghost {
+    @apply text-ink-soft hover:bg-ink/5;
+  }
+  .btn-danger {
+    @apply bg-danger-600 text-white hover:bg-danger-600/90;
+  }
+  .btn-lg {
+    @apply h-11 px-5 text-[15px] rounded-xl;
+  }
+  .card {
+    @apply bg-surface border border-line rounded-2xl shadow-card;
+  }
+  .input {
+    @apply w-full h-10 rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink
+      placeholder:text-faint focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-100;
+  }
+  .label {
+    @apply block text-[13px] font-semibold text-ink-soft mb-1.5;
+  }
+  .kbd {
+    @apply inline-flex items-center rounded border border-line-strong bg-paper px-1.5 font-mono text-[11px] text-muted;
+  }
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}

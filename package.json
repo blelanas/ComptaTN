@@ -1,0 +1,72 @@
+{
+  "name": "qayd",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "clsx": "2.1.1",
+    "lucide-react": "0.468.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-router-dom": "7.13.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.1.18",
+    "@types/react": "18.3.28",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "4.7.0",
+    "tailwindcss": "4.1.18",
+    "typescript": "5.9.3",
+    "vite": "6.4.1",
+    "vitest": "3.2.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "@jridgewell/sourcemap-codec": "1.5.5",
+      "jiti": "2.6.1",
+      "enhanced-resolve": "5.19.0",
+      "tapable": "2.3.0",
+      "@babel/core": "7.29.0",
+      "@babel/parser": "7.29.0",
+      "@babel/types": "7.29.0",
+      "@babel/template": "7.28.6",
+      "@babel/helper-string-parser": "7.27.1",
+      "@babel/helper-validator-identifier": "7.28.5",
+      "@babel/plugin-transform-react-jsx-self": "7.27.1",
+      "@babel/helper-plugin-utils": "7.28.6",
+      "@babel/plugin-transform-react-jsx-source": "7.27.1",
+      "@babel/helpers": "7.28.6",
+      "@babel/traverse": "7.29.0",
+      "@babel/helper-globals": "7.28.0",
+      "@babel/code-frame": "7.29.0",
+      "@babel/generator": "7.29.1",
+      "@babel/helper-module-transforms": "7.28.6",
+      "@babel/helper-compilation-targets": "7.28.6",
+      "@babel/helper-module-imports": "7.28.6",
+      "browserslist": "4.28.1",
+      "@babel/helper-validator-option": "7.27.1",
+      "@babel/compat-data": "7.29.0",
+      "node-releases": "2.0.27",
+      "update-browserslist-db": "1.2.3",
+      "caniuse-lite": "1.0.30001769",
+      "baseline-browser-mapping": "2.9.19",
+      "electron-to-chromium": "1.5.286",
+      "postcss": "8.5.6",
+      "nanoid": "3.3.11",
+      "picomatch": "4.0.3",
+      "tinyglobby": "0.2.15",
+      "rollup": "4.57.1",
+      "tinyspy": "4.0.4",
+      "expect-type": "1.3.0",
+      "@types/estree": "1.0.8",
+      "@vitest/pretty-format": "3.2.4"
+    }
+  }
+}
