@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// Raqib security rules. The data model is described in src/lib/repository.firestore.ts.
+// Copy this file into Firebase console → Firestore Database → Règles, then Publier.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function company(companyId) {
+      return get(/databases/$(database)/documents/companies/$(companyId)).data;
+    }
+
+    function isMember(companyId) {
+      return signedIn() && request.auth.uid in company(companyId).memberIds;
+    }
+
+    function isOwner(companyId) {
+      return signedIn() && company(companyId).ownerId == request.auth.uid;
+    }
+
+    function invitedHere(companyId) {
+      return request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/invitations/$(companyId + '__' + myEmail()));
+    }
+
+    function changed() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function validInfo(data) {
+      return data.raisonSociale is string
+        && data.raisonSociale.size() > 0
+        && data.raisonSociale.size() <= 120
+        && data.exercices is list
+        && data.exercices.size() >= 1
+        && data.exercices.size() <= 100;
+    }
+
+    match /companies/{companyId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.memberIds;
+
+      // The creator becomes the only member and the owner.
+      allow create: if signedIn()
+        && validInfo(request.resource.data)
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.memberIds == [request.auth.uid]
+        && request.resource.data.members.keys().hasOnly([request.auth.uid])
+        && request.resource.data.members[request.auth.uid].role == 'proprietaire'
+        && request.resource.data.invites.size() == 0;
+
+      allow update: if signedIn() && validInfo(request.resource.data) && (
+        // Members edit the company information and exercices, not who has access.
+        (request.auth.uid in resource.data.memberIds
+          && !changed().hasAny(['ownerId', 'memberIds', 'members', 'invites']))
+
+        // The owner manages access, but stays owner and member.
+        || (resource.data.ownerId == request.auth.uid
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.auth.uid in request.resource.data.memberIds
+          && request.resource.data.members[request.auth.uid].role == 'proprietaire')
+
+        // An invited person (confirmed e-mail) adds exactly themselves, as a member.
+        || (invitedHere(companyId)
+          && changed().hasOnly(['memberIds', 'members', 'invites'])
+          && request.resource.data.memberIds.toSet() == resource.data.memberIds.toSet().union([request.auth.uid].toSet())
+          && request.resource.data.members.diff(resource.data.members).affectedKeys().hasOnly([request.auth.uid])
+          && request.resource.data.members[request.auth.uid].role == 'membre'
+          && request.resource.data.get('invites', {}).diff(resource.data.get('invites', {})).affectedKeys().hasOnly([myEmail()]))
+
+        // An invited person declines: removes only their own pending invite.
+        || (invitedHere(companyId)
+          && changed().hasOnly(['invites'])
+          && request.resource.data.get('invites', {}).diff(resource.data.get('invites', {})).affectedKeys().hasOnly([myEmail()]))
+      );
+
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      // Company data (chart of accounts…): members only.
+      match /data/{docId} {
+        allow read, write: if isMember(companyId);
+      }
+    }
+
+    // Lets an invited person find their invitation by e-mail before joining.
+    match /invitations/{invitationId} {
+      allow read: if signedIn() && resource.data.email == myEmail();
+
+      allow create: if signedIn()
+        && isOwner(request.resource.data.companyId)
+        && request.resource.data.email == request.resource.data.email.lower()
+        && invitationId == request.resource.data.companyId + '__' + request.resource.data.email
+        && request.resource.data.invitedBy == request.auth.uid;
+
+      allow delete: if signedIn()
+        && (resource.data.email == myEmail() || isOwner(resource.data.companyId));
+    }
+  }
+}
