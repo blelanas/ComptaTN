@@ -1,6 +1,6 @@
-# Qayd — Liste complète des fonctionnalités
+# Raqib — Liste complète des fonctionnalités
 
-> **Qayd** (قيد) : en arabe, *l’écriture comptable*, l’inscription au registre.
+> **Raqib** (رقيب) : en arabe, *celui qui veille*, le contrôleur.
 > SaaS de comptabilité tunisienne (SCE), en français, pour entreprises et cabinets.
 
 Chaque fonctionnalité a un identifiant (ex. `PC-03`) pour pouvoir la choisir et

@@ -35,10 +35,10 @@ function SidePanel() {
       </Link>
       <div className="relative mt-auto">
         <p className="font-arabic text-5xl text-white/90" lang="ar" dir="rtl">
-          قيد
+          رقيب
         </p>
         <p className="mt-6 max-w-md text-3xl font-extrabold leading-tight tracking-tight">
-          L’écriture comptable, au cœur d’un outil simple.
+          Vos comptes, sous bonne garde.
         </p>
         <p className="mt-4 max-w-md text-white/70">
           Plan SCE, saisie rapide, TVA et retenue à la source : tout est prêt dès la création de votre société.

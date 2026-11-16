@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Qayd security rules. The data model is described in src/lib/repository.firestore.ts.
+// Raqib security rules. The data model is described in src/lib/repository.firestore.ts.
 // Copy this file into Firebase console → Firestore Database → Règles, then Publier.
 service cloud.firestore {
   match /databases/{database}/documents {

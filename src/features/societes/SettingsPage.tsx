@@ -346,7 +346,7 @@ function UsersTab() {
                   <Copy className="size-4" /> Copier
                 </button>
               </div>
-              <p className="mt-2 text-xs">Qayd n’envoie pas encore d’e-mail d’invitation : partagez le lien par e-mail ou messagerie.</p>
+              <p className="mt-2 text-xs">Raqib n’envoie pas encore d’e-mail d’invitation : partagez le lien par e-mail ou messagerie.</p>
             </div>
           )}
         </form>

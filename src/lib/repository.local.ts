@@ -4,8 +4,8 @@ import { DemoLimitError, type Repository } from './repository';
 
 /** Demo mode: data stays in this browser (localStorage). */
 
-const COMPANIES_KEY = 'qayd.demo.societes.v1';
-const planKey = (companyId: string) => `qayd.plan-comptable.v1.${companyId}`;
+const COMPANIES_KEY = 'raqib.demo.societes.v1';
+const planKey = (companyId: string) => `raqib.plan-comptable.v1.${companyId}`;
 export const DEMO_UID = 'demo';
 
 function demoCompany(): Company {
@@ -21,7 +21,7 @@ function demoCompany(): Company {
     exercices: [exerciceCalendaire(new Date().getFullYear())],
     ownerId: DEMO_UID,
     memberIds: [DEMO_UID],
-    members: { [DEMO_UID]: { nom: 'Compte démo', email: 'demo@qayd.tn', role: 'proprietaire' } },
+    members: { [DEMO_UID]: { nom: 'Compte démo', email: 'demo@raqib.tn', role: 'proprietaire' } },
     invites: {},
   };
 }

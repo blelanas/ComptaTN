@@ -31,7 +31,7 @@ const FEATURES = [
   {
     icon: Keyboard,
     title: 'Saisie en trois champs',
-    text: 'Tiers, montant TTC, taux de TVA : Qayd génère les lignes HT, TVA, timbre et tiers. Un mode folio au clavier pour les gros volumes.',
+    text: 'Tiers, montant TTC, taux de TVA : Raqib génère les lignes HT, TVA, timbre et tiers. Un mode folio au clavier pour les gros volumes.',
   },
   {
     icon: Percent,
@@ -41,7 +41,7 @@ const FEATURES = [
   {
     icon: Landmark,
     title: 'Banque rapprochée',
-    text: 'Importez vos relevés, Qayd propose les rapprochements par montant, date et référence. Vous validez, c’est tout.',
+    text: 'Importez vos relevés, Raqib propose les rapprochements par montant, date et référence. Vous validez, c’est tout.',
   },
   {
     icon: FileSpreadsheet,
@@ -64,25 +64,25 @@ const FEATURES = [
 const STEPS = [
   ['Créez votre société', 'Matricule fiscal, exercice : le plan comptable SCE est installé automatiquement.'],
   ['Reprenez l’existant', 'Importez votre plan, vos tiers et votre balance d’ouverture depuis Excel.'],
-  ['Saisissez, Qayd calcule', 'Écritures, TVA, retenues et états se mettent à jour en temps réel.'],
+  ['Saisissez, Raqib calcule', 'Écritures, TVA, retenues et états se mettent à jour en temps réel.'],
 ] as const;
 
 const FAQ = [
   [
-    'Qayd respecte-t-il le système comptable tunisien ?',
-    'Oui. Qayd est construit sur la nomenclature du Système Comptable des Entreprises (SCE) : classes 1 à 7, états financiers au format tunisien, devise TND à trois décimales.',
+    'Raqib respecte-t-il le système comptable tunisien ?',
+    'Oui. Raqib est construit sur la nomenclature du Système Comptable des Entreprises (SCE) : classes 1 à 7, états financiers au format tunisien, devise TND à trois décimales.',
   ],
   [
     'Puis-je reprendre mon plan comptable actuel ?',
-    'Oui. Importez un fichier CSV exporté depuis Excel ou votre ancien logiciel. Qayd vous montre ce qui sera créé ou modifié avant de valider.',
+    'Oui. Importez un fichier CSV exporté depuis Excel ou votre ancien logiciel. Raqib vous montre ce qui sera créé ou modifié avant de valider.',
   ],
   [
-    'Qayd convient-il aux cabinets comptables ?',
+    'Raqib convient-il aux cabinets comptables ?',
     'Oui. Un cabinet gère plusieurs sociétés, chacune avec son plan, ses exercices et ses droits, et suit les échéances de tous ses clients sur un seul écran.',
   ],
   [
-    'Que veut dire « Qayd » ?',
-    'قيد (qayd) désigne en arabe l’écriture comptable, l’inscription au registre. C’est le geste de base du métier.',
+    'Que veut dire « Raqib » ?',
+    'رقيب (raqib) désigne en arabe celui qui veille, le contrôleur. Le commissaire aux comptes se dit d’ailleurs مراقب الحسابات. Raqib garde un œil sur vos comptes pour que vous n’ayez pas à le faire.',
   ],
 ] as const;
 
@@ -95,7 +95,7 @@ export default function LandingPage() {
       {/* ─── Header ─── */}
       <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-          <Link to="/" aria-label="Qayd, accueil">
+          <Link to="/" aria-label="Raqib, accueil">
             <Logo />
           </Link>
           <nav className="hidden items-center gap-7 text-sm font-medium text-ink-soft md:flex">
@@ -161,7 +161,7 @@ export default function LandingPage() {
               .
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              Qayd réunit saisie, banque, fiscalité et états financiers dans un espace clair, pensé pour les entreprises et les
+              Raqib réunit saisie, banque, fiscalité et états financiers dans un espace clair, pensé pour les entreprises et les
               cabinets comptables en Tunisie.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -242,7 +242,7 @@ export default function LandingPage() {
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-clay-200">Pour les cabinets</p>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Tous vos clients, un seul tableau de bord.</h2>
             <p className="mt-4 text-lg text-white/70">
-              Qayd signale ce qui demande votre attention dans chaque dossier : déclarations à déposer, écritures à valider,
+              Raqib signale ce qui demande votre attention dans chaque dossier : déclarations à déposer, écritures à valider,
               relevés à rapprocher, exercices à clôturer.
             </p>
             <ul className="mt-8 space-y-3">
@@ -338,9 +338,9 @@ export default function LandingPage() {
         <div className="relative overflow-hidden rounded-3xl bg-brand-600 px-8 py-14 text-center text-white md:px-16">
           <div aria-hidden className="absolute -right-20 -top-20 size-72 rounded-full bg-clay-400/40 blur-3xl" />
           <p className="relative font-arabic text-3xl text-white/90" lang="ar" dir="rtl">
-            قيد
+            رقيب
           </p>
-          <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Chaque écriture compte. Commencez par la première.</h2>
+          <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Vos comptes, sous bonne garde.</h2>
           <p className="relative mx-auto mt-4 max-w-xl text-white/80">Créez votre espace en quelques minutes, sans carte bancaire.</p>
           <Link to="/inscription" className="btn btn-lg relative mt-8 bg-white text-brand-700 hover:bg-brand-50">
             Essai gratuit <ArrowRight className="size-4" />
@@ -352,7 +352,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted md:flex-row md:px-6">
           <Logo />
           <p>
-            <span className="font-arabic" lang="ar">قيد</span> · l’écriture comptable · © {new Date().getFullYear()} Qayd
+            <span className="font-arabic" lang="ar">رقيب</span> · celui qui veille sur vos comptes · © {new Date().getFullYear()} Raqib
           </p>
           <div className="flex gap-5">
             <a href="#faq" className="hover:text-ink">FAQ</a>

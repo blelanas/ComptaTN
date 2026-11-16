@@ -56,8 +56,8 @@ function writePref(key: string, value: string) {
   }
 }
 
-const companyPrefKey = (uid: string) => `qayd.societe-courante.${uid}`;
-const exercicePrefKey = (companyId: string) => `qayd.exercice.${companyId}`;
+const companyPrefKey = (uid: string) => `raqib.societe-courante.${uid}`;
+const exercicePrefKey = (companyId: string) => `raqib.exercice.${companyId}`;
 
 type LoadState = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready' };
 

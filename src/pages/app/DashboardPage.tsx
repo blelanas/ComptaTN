@@ -47,7 +47,7 @@ export default function DashboardPage() {
       done: company.memberIds.length > 1 || Object.keys(company.invites).length > 0,
       ready: true,
     },
-    { title: 'Saisissez votre première écriture', text: 'Tiers, montant TTC, taux de TVA : Qayd génère les lignes.', to: '/app/saisie', cta: 'Bientôt', done: false, ready: false },
+    { title: 'Saisissez votre première écriture', text: 'Tiers, montant TTC, taux de TVA : Raqib génère les lignes.', to: '/app/saisie', cta: 'Bientôt', done: false, ready: false },
   ];
 
   return (
@@ -95,7 +95,7 @@ export default function DashboardPage() {
       <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="card p-6">
           <h2 className="text-lg font-bold">Pour bien démarrer</h2>
-          <p className="mt-1 text-sm text-muted">Quatre étapes pour tenir la comptabilité de la société dans Qayd.</p>
+          <p className="mt-1 text-sm text-muted">Quatre étapes pour tenir la comptabilité de la société dans Raqib.</p>
           <ol className="mt-5 space-y-3">
             {steps.map((s, i) => (
               <li key={s.title} className="flex items-start gap-4 rounded-xl border border-line p-4">

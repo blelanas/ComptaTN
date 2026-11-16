@@ -55,7 +55,7 @@ Sources : pages publiques uniquement (novembre 2026). Les prix et les règles fi
 - rôles et multi-sociétés ;
 - essai gratuit et tableau de bord.
 
-## Différenciants retenus pour Qayd
+## Différenciants retenus pour Raqib
 
 1. **Simplicité** : menu à un seul niveau, le type de compte est déduit automatiquement, aucun champ inutile.
 2. **« Validez au lieu de saisir »** : OCR des factures, propositions de rapprochement.

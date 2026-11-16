@@ -38,8 +38,8 @@ interface SessionValue {
 
 const SessionContext = createContext<SessionValue | null>(null);
 
-const DEMO_FLAG = 'qayd.demo';
-const DEMO_USER: SessionUser = { uid: DEMO_UID, email: 'demo@qayd.tn', nom: 'Compte démo', emailVerified: true };
+const DEMO_FLAG = 'raqib.demo';
+const DEMO_USER: SessionUser = { uid: DEMO_UID, email: 'demo@raqib.tn', nom: 'Compte démo', emailVerified: true };
 
 function readDemoFlag() {
   try {

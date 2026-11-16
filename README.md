@@ -1,10 +1,11 @@
-# Qayd · قيد
+# Raqib · رقيب
 
 **La comptabilité tunisienne, enfin simple.** SaaS de comptabilité conforme au
 Système Comptable des Entreprises (SCE), en français, pour les entreprises et
 les cabinets comptables.
 
-> *Qayd* (قيد) signifie en arabe « l’écriture comptable », l’inscription au registre.
+> *Raqib* (رقيب) signifie en arabe « celui qui veille », le contrôleur. Le
+> commissaire aux comptes se dit مراقب الحسابات. Slogan : « Vos comptes, sous bonne garde. »
 
 ## État actuel
 
@@ -82,7 +83,7 @@ L’identifiant du projet est lu automatiquement dans la clé.
 Dans la console Firebase :
 
 1. **Paramètres du projet → Vos applications → Web (`</>`)** : enregistrer une
-   application web nommée « Qayd ». Firebase Hosting fournit ensuite la
+   application web nommée « Raqib ». Firebase Hosting fournit ensuite la
    configuration automatiquement (`/__/firebase/init.json`) : aucune clé à copier.
 2. **Authentication → Commencer → Adresse e-mail/Mot de passe** : activer.
 3. **Firestore Database → Créer une base de données** :
