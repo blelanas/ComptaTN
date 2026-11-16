@@ -1,5 +1,8 @@
 import clsx from 'clsx';
 import {
+  Check,
+  Cloud,
+  CloudOff,
   ChevronRight,
   ChevronsDownUp,
   ChevronsUpDown,
@@ -26,6 +29,68 @@ import { usePlanComptable } from './store';
 type View = 'arbre' | 'imputables';
 
 export default function PlanComptablePage() {
+  const { status, loadError, retry } = usePlanComptable();
+  if (status === 'loading') {
+    return (
+      <div>
+        <PageHeader title="Plan comptable" description="Chargement du plan comptable…" />
+        <div className="card space-y-3 p-6" aria-busy="true">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="h-5 animate-pulse rounded bg-ink/[0.06]" style={{ width: `${90 - (i % 4) * 12}%` }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (status === 'error') {
+    return (
+      <div>
+        <PageHeader title="Plan comptable" />
+        <div className="card flex flex-col items-center gap-3 p-10 text-center">
+          <CloudOff className="size-8 text-danger-600" />
+          <p className="font-semibold">Impossible de charger le plan comptable</p>
+          <p className="text-sm text-muted">{loadError}</p>
+          <button className="btn btn-primary mt-2" onClick={retry}>
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+  return <PlanComptableView />;
+}
+
+/** Background-save status, shown next to the page title. */
+function SaveIndicator() {
+  const { saveStatus, saveError, retry } = usePlanComptable();
+  if (saveStatus === 'saving') {
+    return (
+      <span className="inline-flex items-center gap-1 text-muted">
+        <Cloud className="size-3.5 animate-pulse" /> Enregistrement…
+      </span>
+    );
+  }
+  if (saveStatus === 'saved') {
+    return (
+      <span className="inline-flex items-center gap-1 text-success-600">
+        <Check className="size-3.5" /> Enregistré
+      </span>
+    );
+  }
+  if (saveStatus === 'error') {
+    return (
+      <span className="inline-flex items-center gap-1 font-medium text-danger-600" title={saveError ?? undefined}>
+        <CloudOff className="size-3.5" /> Non enregistré.{' '}
+        <button className="underline underline-offset-2" onClick={retry}>
+          Réessayer
+        </button>
+      </span>
+    );
+  }
+  return null;
+}
+
+function PlanComptableView() {
   const { accounts, tree, remove, reset } = usePlanComptable();
   const { company } = useCompany();
   const toast = useToast();
@@ -139,6 +204,9 @@ export default function PlanComptablePage() {
                 · <span className="num">{stats.inactifs}</span> inactif{stats.inactifs > 1 ? 's' : ''}
               </>
             )}
+            <span className="ml-3">
+              <SaveIndicator />
+            </span>
           </>
         }
         actions={

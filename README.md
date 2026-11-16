@@ -8,16 +8,25 @@ les cabinets comptables.
 
 ## État actuel
 
-- Landing page, page de connexion (démo), interface de l’application.
-- **Plan comptable** complet :
+- Landing page et interface de l’application.
+- **Comptes** (Firebase Authentication) : inscription, connexion, mot de passe
+  oublié, confirmation de l’e-mail.
+- **Sociétés** :
+  - plusieurs sociétés par compte, changement en un clic ;
+  - fiche société (raison sociale, matricule fiscal…) ;
+  - exercices à dates libres ;
+  - invitation de collaborateurs par lien.
+- **Plan comptable** complet, enregistré par société :
   - référentiel SCE (environ 300 comptes) ;
   - arborescence et recherche ;
   - création, modification et désactivation des comptes ;
   - import CSV avec aperçu, export CSV.
 - Recherche rapide `Ctrl+K`.
+- **Mode démo** sans compte : les données restent dans le navigateur.
 
-Les données sont pour l’instant enregistrées dans le navigateur (`localStorage`).
-Le backend est la prochaine étape.
+Les données des comptes sont enregistrées dans **Cloud Firestore** (plan gratuit
+Spark). Les règles de sécurité sont dans `firestore.rules` ; le modèle de données
+est décrit dans `src/lib/repository.firestore.ts`.
 
 - Liste complète des fonctionnalités : [`docs/fonctionnalites.md`](docs/fonctionnalites.md)
 - Analyse de la concurrence : [`docs/analyse-concurrence.md`](docs/analyse-concurrence.md)
@@ -68,6 +77,24 @@ Configuration, une seule fois :
 
 L’identifiant du projet est lu automatiquement dans la clé.
 
+### Base de données et connexion (une seule fois)
+
+Dans la console Firebase :
+
+1. **Paramètres du projet → Vos applications → Web (`</>`)** : enregistrer une
+   application web nommée « Qayd ». Firebase Hosting fournit ensuite la
+   configuration automatiquement (`/__/firebase/init.json`) : aucune clé à copier.
+2. **Authentication → Commencer → Adresse e-mail/Mot de passe** : activer.
+3. **Firestore Database → Créer une base de données** :
+   - mode production ;
+   - emplacement en Europe, par exemple `eur3` ou `europe-west1` (définitif).
+4. **Firestore Database → Règles** : coller le contenu de `firestore.rules`, puis
+   **Publier**. À refaire à chaque modification de ce fichier.
+
+En local, sans accès à Firebase, seule la démo fonctionne. Pour utiliser un vrai
+projet en local, définir `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID` et
+`VITE_FIREBASE_APP_ID` dans un fichier `.env.local`.
+
 ## Structure
 
 ```
@@ -75,12 +102,21 @@ src/
   pages/                 Landing, connexion, pages de l’app
   layout/                Interface de l’app (menu, barre du haut, palette Ctrl+K)
   components/            Logo, composants d’interface (modal, panneau, badge, toast)
-  lib/                   Navigation, société courante
+  lib/
+    firebase.ts          Initialisation Firebase (chargée à la demande)
+    session.tsx          Session : connexion, démo, garde des routes
+    company.tsx          Sociétés, société et exercice courants
+    repository*.ts       Accès aux données : Firestore ou navigateur (démo)
+  features/societes/
+    model.ts             Logique pure (matricule, exercices, invitations) + tests
+    SettingsPage.tsx     Paramètres : société, exercices, utilisateurs
+    OnboardingPage.tsx, CompanySwitcher.tsx, NewCompanyForm.tsx…
   features/plan-comptable/
     sceReference.ts      Plan de référence SCE
     accounts.ts          Logique pure (arbre, validation, CSV) + tests
-    store.tsx            État et persistance
+    store.tsx            État et enregistrement en arrière-plan
     PlanComptablePage.tsx, AccountDrawer.tsx, ImportDialog.tsx
+firestore.rules          Règles de sécurité Firestore
 docs/                    Fonctionnalités et analyse de la concurrence
 ```
 

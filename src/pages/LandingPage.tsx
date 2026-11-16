@@ -109,7 +109,7 @@ export default function LandingPage() {
             <Link to="/connexion" className="btn btn-ghost">
               Se connecter
             </Link>
-            <Link to="/connexion" className="btn btn-primary">
+            <Link to="/inscription" className="btn btn-primary">
               Essai gratuit
             </Link>
           </div>
@@ -130,7 +130,7 @@ export default function LandingPage() {
               <Link to="/connexion" className="btn btn-secondary">
                 Se connecter
               </Link>
-              <Link to="/connexion" className="btn btn-primary">
+              <Link to="/inscription" className="btn btn-primary">
                 Essai gratuit
               </Link>
             </div>
@@ -165,10 +165,10 @@ export default function LandingPage() {
               cabinets comptables en Tunisie.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link to="/connexion" className="btn btn-primary btn-lg">
+              <Link to="/inscription" className="btn btn-primary btn-lg">
                 Commencer gratuitement <ArrowRight className="size-4" />
               </Link>
-              <Link to="/app" className="btn btn-secondary btn-lg">
+              <Link to="/demo" className="btn btn-secondary btn-lg">
                 Voir la démo
               </Link>
             </div>
@@ -342,7 +342,7 @@ export default function LandingPage() {
           </p>
           <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Chaque écriture compte. Commencez par la première.</h2>
           <p className="relative mx-auto mt-4 max-w-xl text-white/80">Créez votre espace en quelques minutes, sans carte bancaire.</p>
-          <Link to="/connexion" className="btn btn-lg relative mt-8 bg-white text-brand-700 hover:bg-brand-50">
+          <Link to="/inscription" className="btn btn-lg relative mt-8 bg-white text-brand-700 hover:bg-brand-50">
             Essai gratuit <ArrowRight className="size-4" />
           </Link>
         </div>

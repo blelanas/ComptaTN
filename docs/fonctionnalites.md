@@ -26,18 +26,18 @@ Statut : ✅ fait · 🟡 partiel · ⬜ à faire
 | UI-06 | Mode sombre | V2 | ⬜ |
 | UI-07 | Visites guidées / aide contextuelle | V2 | ⬜ |
 | UI-08 | Interface en arabe (RTL), en plus du français | V2 | ⬜ |
-| SY-01 | Backend + base de données (API, persistance serveur) | MVP | ⬜ |
-| SY-02 | Authentification (e-mail + mot de passe, réinitialisation, 2FA) | MVP | ⬜ |
+| SY-01 | Backend + base de données (API, persistance serveur) | MVP | ✅ Firebase (Firestore) |
+| SY-02 | Authentification (e-mail + mot de passe, réinitialisation, 2FA) | MVP | 🟡 tout sauf la 2FA |
 | SY-03 | Montants en TND à 3 décimales (millimes), arrondis maîtrisés | MVP | ⬜ |
 
 ## 1. Sociétés, utilisateurs et abonnements
 
 | ID | Fonctionnalité | Priorité | Statut |
 |----|----------------|----------|--------|
-| SO-01 | Création de société : raison sociale, matricule fiscal, RNE, activité, adresse, devise | MVP | 🟡 société démo |
-| SO-02 | Exercices comptables (ouverture, dates libres, exercice courant) | MVP | 🟡 sélecteur |
-| SO-03 | Multi-sociétés et changement de société en un clic | MVP | ⬜ |
-| SO-04 | Utilisateurs et invitations par e-mail | MVP | ⬜ |
+| SO-01 | Création de société : raison sociale, matricule fiscal, RNE, activité, adresse, devise | MVP | ✅ (identifiant RNE : début du matricule) |
+| SO-02 | Exercices comptables (ouverture, dates libres, exercice courant) | MVP | ✅ |
+| SO-03 | Multi-sociétés et changement de société en un clic | MVP | ✅ |
+| SO-04 | Utilisateurs et invitations par e-mail | MVP | 🟡 invitation par lien, sans envoi d’e-mail |
 | SO-05 | Rôles : propriétaire, chef comptable, comptable, assistant, auditeur (lecture seule) | V1 | ⬜ |
 | SO-06 | Journal d’audit immuable (qui a fait quoi, quand) | V1 | ⬜ |
 | SO-07 | Abonnements (formules, essai gratuit, limites par formule) | V1 | ⬜ |
@@ -178,8 +178,8 @@ Statut : ✅ fait · 🟡 partiel · ⬜ à faire
 
 ## Ordre de réalisation proposé
 
-1. ✅ **UI-01/02, PC-01→08** : landing, interface, plan comptable *(cette PR)*
-2. **SY-01/02, SO-01→04** : backend, authentification, sociétés et exercices
+1. ✅ **UI-01/02, PC-01→08** : landing, interface, plan comptable
+2. ✅ **SY-01/02, SO-01→04** : backend, authentification, sociétés et exercices
 3. **JO-01, SA-01/02/04/08, TI-01** : journaux, saisie, tiers
 4. **CO-01→03, CL-01** : journaux, grand livre, balance, balance d’ouverture
 5. **FI-01/02, EF-01/02/06** : fiscalité et états financiers

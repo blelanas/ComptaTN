@@ -1,12 +1,15 @@
 import clsx from 'clsx';
-import { CalendarDays, ChevronDown, LogOut, Menu, Search, X } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
-import { ToastProvider } from '@/components/ui';
+import { CompanySwitcher } from '@/features/societes/CompanySwitcher';
+import { VerifyEmailHint } from '@/features/societes/InvitationCard';
+import { formatDate, initials, sortExercices } from '@/features/societes/model';
 import { CommandPalette } from '@/layout/CommandPalette';
 import { useCompany } from '@/lib/company';
 import { NAV_SECTIONS } from '@/lib/navigation';
+import { useCurrentUser, useSession } from '@/lib/session';
 
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -52,58 +55,92 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         ))}
       </div>
-      <div className="border-t border-line p-4">
-        <div className="flex items-center gap-3">
-          <div className="grid size-9 place-items-center rounded-full bg-clay-100 text-sm font-bold text-clay-700">DM</div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">Compte démo</p>
-            <p className="truncate text-xs text-muted">Administrateur</p>
-          </div>
-          <Link to="/" className="btn btn-ghost h-8 w-8 px-0" title="Se déconnecter" aria-label="Se déconnecter">
-            <LogOut className="size-4" />
-          </Link>
-        </div>
-      </div>
+      <UserBlock />
     </nav>
   );
 }
 
+function UserBlock() {
+  const { user, isDemo } = useCurrentUser();
+  const { company } = useCompany();
+  const { signOut } = useSession();
+  const navigate = useNavigate();
+  const role = company.members[user.uid]?.role === 'proprietaire' ? 'Propriétaire' : 'Membre';
+  return (
+    <div className="border-t border-line p-4">
+      <div className="flex items-center gap-3">
+        <div className="grid size-9 shrink-0 place-items-center rounded-full bg-clay-100 text-sm font-bold text-clay-700">
+          {initials(user.nom)}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">{user.nom}</p>
+          <p className="truncate text-xs text-muted">{isDemo ? 'Mode démo' : `${role} · ${user.email}`}</p>
+        </div>
+        <button
+          className="btn btn-ghost h-8 w-8 px-0"
+          title={isDemo ? 'Quitter la démo' : 'Se déconnecter'}
+          aria-label={isDemo ? 'Quitter la démo' : 'Se déconnecter'}
+          onClick={async () => {
+            await signOut();
+            navigate('/');
+          }}
+        >
+          <LogOut className="size-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Demo and unverified-e-mail notices, above the top bar. */
+function SessionBanner() {
+  const { user, isDemo } = useCurrentUser();
+  if (isDemo) {
+    return (
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-clay-50 px-4 py-2 text-center text-[13px] text-clay-700">
+        <span>Mode démo : vos données restent dans ce navigateur.</span>
+        <Link to="/inscription" className="font-semibold underline underline-offset-2">
+          Créer un compte gratuit
+        </Link>
+      </div>
+    );
+  }
+  if (!user.emailVerified) {
+    return (
+      <div className="flex justify-center bg-warning-50 px-4 py-2 text-[13px] text-warning-600">
+        <VerifyEmailHint compact />
+      </div>
+    );
+  }
+  return null;
+}
+
 function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () => void }) {
-  const { company, setExercice } = useCompany();
-  const years = [company.exercice + 1, company.exercice, company.exercice - 1, company.exercice - 2]
-    .filter((y, i, arr) => arr.indexOf(y) === i)
-    .sort((a, b) => b - a);
+  const { company, exercice, setExercice } = useCompany();
+  const exercices = sortExercices(company.exercices);
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-paper/85 px-4 backdrop-blur md:px-8">
-      <button className="btn btn-ghost h-9 w-9 px-0 lg:hidden" onClick={onMenu} aria-label="Ouvrir le menu">
+      <button className="btn btn-ghost h-9 w-9 shrink-0 px-0 lg:hidden" onClick={onMenu} aria-label="Ouvrir le menu">
         <Menu className="size-5" />
       </button>
 
-      <button
-        className="flex min-w-0 items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-left shadow-card hover:border-line-strong"
-        title="Changer de société (multi-sociétés bientôt)"
-      >
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-brand-600 text-xs font-bold text-white">
-          {company.code}
-        </span>
-        <span className="hidden min-w-0 sm:block">
-          <span className="block truncate text-sm font-semibold leading-tight">{company.raisonSociale}</span>
-          <span className="block truncate text-[11px] text-muted">MF {company.matriculeFiscal}</span>
-        </span>
-        <ChevronDown className="size-4 text-faint" />
-      </button>
+      <CompanySwitcher />
 
-      <label className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-1.5 shadow-card">
+      <label
+        className="flex shrink-0 items-center gap-2 rounded-lg border border-line bg-surface px-3 py-1.5 shadow-card"
+        title={`Du ${formatDate(exercice.debut)} au ${formatDate(exercice.fin)}`}
+      >
         <CalendarDays className="size-4 text-faint" />
         <span className="sr-only">Exercice</span>
         <select
           className="cursor-pointer bg-transparent text-sm font-semibold focus:outline-none"
-          value={company.exercice}
+          value={exercice.annee}
           onChange={(e) => setExercice(Number(e.target.value))}
         >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              Exercice {y}
+          {exercices.map((ex) => (
+            <option key={ex.annee} value={ex.annee}>
+              Exercice {ex.annee}
+              {ex.statut === 'cloture' ? ' (clôturé)' : ''}
             </option>
           ))}
         </select>
@@ -140,7 +177,7 @@ export default function AppShell() {
   }, []);
 
   return (
-    <ToastProvider>
+    <>
       <div className="min-h-screen lg:pl-64">
         <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-line bg-surface lg:block">
           <Sidebar />
@@ -162,12 +199,13 @@ export default function AppShell() {
           </div>
         )}
 
+        <SessionBanner />
         <Topbar onMenu={() => setMobileOpen(true)} onSearch={() => setPaletteOpen(true)} />
         <main className="mx-auto max-w-7xl px-4 py-8 md:px-8">
           <Outlet />
         </main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-    </ToastProvider>
+    </>
   );
 }

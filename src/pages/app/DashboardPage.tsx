@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { ArrowRight, Check, Landmark, ListTree, ReceiptText, Scale, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePlanComptable } from '@/features/plan-comptable/store';
+import { formatDate } from '@/features/societes/model';
 import { useCompany } from '@/lib/company';
 
 const KPIS = [
@@ -12,23 +13,40 @@ const KPIS = [
 ];
 
 export default function DashboardPage() {
-  const { company } = useCompany();
-  const { tree } = usePlanComptable();
+  const { company, exercice } = useCompany();
+  const { tree, status } = usePlanComptable();
   const nodes = [...tree.values()];
   const imputables = nodes.filter((n) => !n.isGroup).length;
   const personnalises = nodes.filter((n) => n.origine === 'perso').length;
+  const loading = status !== 'ready';
 
   const steps = [
     {
+      title: 'Complétez la fiche de la société',
+      text: 'Matricule fiscal, activité et adresse : ils apparaîtront sur vos documents.',
+      to: '/app/parametres',
+      cta: 'Compléter',
+      done: !!company.matriculeFiscal && !!company.adresse,
+      ready: true,
+    },
+    {
       title: 'Vérifiez votre plan comptable',
-      text: `${nodes.length} comptes SCE prêts à l’emploi. Ajoutez vos sous-comptes ou importez votre plan.`,
+      text: loading
+        ? 'Comptes SCE prêts à l’emploi. Ajoutez vos sous-comptes ou importez votre plan.'
+        : `${nodes.length} comptes SCE prêts à l’emploi. Ajoutez vos sous-comptes ou importez votre plan.`,
       to: '/app/comptabilite/plan-comptable',
       cta: 'Ouvrir le plan',
       done: personnalises > 0,
       ready: true,
     },
-    { title: 'Paramétrez vos journaux', text: 'Achats, ventes, banque, caisse et opérations diverses.', to: '/app/parametres', cta: 'Bientôt', done: false, ready: false },
-    { title: 'Reprenez votre balance d’ouverture', text: 'Importez les soldes de l’exercice précédent en un fichier.', to: '/app/comptabilite/balance', cta: 'Bientôt', done: false, ready: false },
+    {
+      title: 'Invitez votre équipe',
+      text: 'Votre comptable ou vos collaborateurs travaillent sur la même société.',
+      to: '/app/parametres?onglet=utilisateurs',
+      cta: 'Inviter',
+      done: company.memberIds.length > 1 || Object.keys(company.invites).length > 0,
+      ready: true,
+    },
     { title: 'Saisissez votre première écriture', text: 'Tiers, montant TTC, taux de TVA : Qayd génère les lignes.', to: '/app/saisie', cta: 'Bientôt', done: false, ready: false },
   ];
 
@@ -45,7 +63,7 @@ export default function DashboardPage() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-clay-200">Bienvenue</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight">{company.raisonSociale}</h1>
             <p className="mt-1 text-sm text-white/70">
-              Exercice {company.exercice} · du 01/01/{company.exercice} au 31/12/{company.exercice}
+              Exercice {exercice.annee} · du {formatDate(exercice.debut)} au {formatDate(exercice.fin)}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -120,7 +138,7 @@ export default function DashboardPage() {
                 ['Personnalisés', personnalises],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl bg-paper px-2 py-3">
-                  <dd className="num text-xl font-extrabold">{value}</dd>
+                  <dd className="num text-xl font-extrabold">{loading ? '…' : value}</dd>
                   <dt className="mt-0.5 text-xs text-muted">{label}</dt>
                 </div>
               ))}

@@ -1,72 +1,142 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { applyImport, buildTree, referenceAccounts, sortAccounts, type Account, type AccountNode, type ImportLine } from './accounts';
 import { useCompany } from '@/lib/company';
+import { errorMessage } from '@/lib/errors';
+import { useCurrentUser } from '@/lib/session';
 
 /**
  * Chart-of-accounts state for the current company.
  *
- * Persistence is local (browser storage) for this first iteration. The
- * component API (add / update / remove / importLines / reset) is the
- * contract the future backend API will implement.
+ * Changes show at once; saving happens in the background (Firestore for
+ * signed-in users, the browser in demo mode). Rapid edits are grouped into
+ * one write.
  */
+export type LoadStatus = 'loading' | 'ready' | 'error';
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 interface PlanComptableContextValue {
   accounts: Account[];
   tree: Map<string, AccountNode>;
+  status: LoadStatus;
+  loadError: string | null;
+  saveStatus: SaveStatus;
+  saveError: string | null;
   add: (account: Pick<Account, 'numero' | 'libelle'>) => void;
   update: (numero: string, patch: Partial<Pick<Account, 'libelle' | 'actif'>>) => void;
   remove: (numero: string) => void;
   importLines: (lines: ImportLine[]) => void;
   reset: () => void;
+  retry: () => void;
 }
 
 const PlanComptableContext = createContext<PlanComptableContextValue | null>(null);
 
-const storageKey = (companyId: string) => `qayd.plan-comptable.v1.${companyId}`;
-
-function load(companyId: string): Account[] {
-  try {
-    const raw = localStorage.getItem(storageKey(companyId));
-    if (raw) {
-      const parsed = JSON.parse(raw) as Account[];
-      if (Array.isArray(parsed) && parsed.length > 0) return sortAccounts(parsed);
-    }
-  } catch {
-    // Storage unavailable or corrupted: fall back to the reference chart.
-  }
-  return referenceAccounts();
-}
-
-function save(companyId: string, accounts: Account[]) {
-  try {
-    localStorage.setItem(storageKey(companyId), JSON.stringify(accounts));
-  } catch {
-    // Storage unavailable (private mode…): changes stay in memory for this session.
-  }
-}
+const SAVE_DELAY_MS = 600;
 
 export function PlanComptableProvider({ children }: { children: ReactNode }) {
   const { company } = useCompany();
-  const [accounts, setAccounts] = useState<Account[]>(() => load(company.id));
+  const { repo } = useCurrentUser();
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [status, setStatus] = useState<LoadStatus>('loading');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
+  const current = useRef<Account[]>([]);
+  const pending = useRef<{ companyId: string; accounts: Account[] } | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chain = useRef<Promise<void>>(Promise.resolve());
+
+  const flush = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    const job = pending.current;
+    if (!job) return;
+    pending.current = null;
+    chain.current = chain.current.then(async () => {
+      try {
+        await repo.savePlan(job.companyId, job.accounts);
+        if (!pending.current) {
+          setSaveStatus('saved');
+          setSaveError(null);
+        }
+      } catch (e) {
+        // Keep the failed version so "Réessayer" can send it again.
+        pending.current ??= job;
+        setSaveStatus('error');
+        setSaveError(errorMessage(e));
+      }
+    });
+  }, [repo]);
+
+  // Load the plan of the selected company. Pending changes of the previous one are saved first.
   useEffect(() => {
-    setAccounts(load(company.id));
-  }, [company.id]);
+    flush();
+    let cancelled = false;
+    setStatus('loading');
+    setLoadError(null);
+    setSaveStatus('idle');
+    current.current = [];
+    setAccounts([]);
+    repo
+      .loadPlan(company.id)
+      .then((saved) => {
+        if (cancelled) return;
+        const value = saved ?? referenceAccounts();
+        current.current = value;
+        setAccounts(value);
+        setStatus('ready');
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setLoadError(errorMessage(e));
+        setStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [company.id, repo, flush, reloadKey]);
+
+  // Save right away when leaving, and warn if a save is still running.
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (pending.current || timer.current) {
+        flush();
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      flush();
+    };
+  }, [flush]);
 
   const commit = useCallback(
     (next: (prev: Account[]) => Account[]) => {
-      setAccounts((prev) => {
-        const value = sortAccounts(next(prev));
-        save(company.id, value);
-        return value;
-      });
+      if (status !== 'ready') return;
+      const value = sortAccounts(next(current.current));
+      current.current = value;
+      setAccounts(value);
+      pending.current = { companyId: company.id, accounts: value };
+      setSaveStatus('saving');
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(flush, SAVE_DELAY_MS);
     },
-    [company.id],
+    [company.id, flush, status],
   );
+
+  const tree = useMemo(() => buildTree(accounts), [accounts]);
 
   const value = useMemo<PlanComptableContextValue>(
     () => ({
       accounts,
-      tree: buildTree(accounts),
+      tree,
+      status,
+      loadError,
+      saveStatus,
+      saveError,
       add: ({ numero, libelle }) =>
         commit((prev) => [...prev, { numero: numero.trim(), libelle: libelle.trim(), actif: true, origine: 'perso' }]),
       update: (numero, patch) =>
@@ -78,8 +148,17 @@ export function PlanComptableProvider({ children }: { children: ReactNode }) {
       remove: (numero) => commit((prev) => prev.filter((a) => a.numero !== numero)),
       importLines: (lines) => commit((prev) => applyImport(prev, lines)),
       reset: () => commit(() => referenceAccounts()),
+      retry: () => {
+        if (status === 'error') {
+          setReloadKey((k) => k + 1);
+          return;
+        }
+        if (!pending.current) pending.current = { companyId: company.id, accounts: current.current };
+        setSaveStatus('saving');
+        flush();
+      },
     }),
-    [accounts, commit],
+    [accounts, tree, status, loadError, saveStatus, saveError, commit, flush, company.id],
   );
 
   return <PlanComptableContext.Provider value={value}>{children}</PlanComptableContext.Provider>;
