@@ -42,6 +42,32 @@ pnpm build      # vérification des types + build de production
 > transitives. Il a servi à installer le projet hors ligne et peut être supprimé
 > sur une machine connectée (puis `pnpm install`).
 
+## Déploiement (Firebase Hosting)
+
+Le déploiement passe par GitHub Actions. Aucune installation locale n’est nécessaire.
+
+- **Pull request** : l’action construit le site et le publie sur un lien de
+  prévisualisation, valable 30 jours, ajouté en commentaire sur la PR
+  (`.github/workflows/firebase-hosting-pr.yml`).
+- **Fusion dans `main`** : l’action met à jour le site en ligne
+  (`.github/workflows/firebase-hosting-main.yml`).
+
+Configuration, une seule fois :
+
+1. Créer un projet Firebase (plan Spark gratuit) et activer **Hosting**.
+2. Dans Google Cloud, sous *IAM → Comptes de service*, créer un compte de service
+   avec les rôles :
+   - *Administrateur Firebase Hosting* ;
+   - *Lecteur de clés API* ;
+   - *Administrateur Firebase Authentication*.
+
+   Créer ensuite une clé JSON pour ce compte.
+3. Dans GitHub, sous *Settings → Secrets and variables → Actions*, créer le secret
+   `FIREBASE_SERVICE_ACCOUNT` et y coller tout le contenu du fichier JSON. Ce
+   fichier ne doit jamais être commité.
+
+L’identifiant du projet est lu automatiquement dans la clé.
+
 ## Structure
 
 ```
