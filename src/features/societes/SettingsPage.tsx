@@ -301,7 +301,7 @@ function UsersTab() {
   return (
     <div className="max-w-3xl space-y-6">
       {isDemo ? (
-        <div className="flex gap-3 rounded-xl bg-clay-50 p-4 text-sm text-clay-700">
+        <div className="flex gap-3 rounded-xl bg-gold-50 p-4 text-sm text-gold-700">
           <Lock className="mt-0.5 size-4 shrink-0" />
           <p>
             Les invitations sont disponibles avec un compte : chaque personne invitée se connecte avec son propre e-mail.{' '}
@@ -359,7 +359,7 @@ function UsersTab() {
         <ul className="divide-y divide-line">
           {members.map(([uid, m]) => (
             <li key={uid} className="flex items-center gap-3 px-5 py-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-clay-100 text-sm font-bold text-clay-700">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gold-100 text-sm font-bold text-gold-700">
                 {initials(m.nom)}
               </span>
               <span className="min-w-0 flex-1">

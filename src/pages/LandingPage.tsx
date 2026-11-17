@@ -142,7 +142,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-brand-100/70 blur-3xl" />
-          <div className="absolute right-[8%] top-40 size-72 rounded-full bg-clay-100/80 blur-3xl" />
+          <div className="absolute right-[8%] top-40 size-72 rounded-full bg-gold-100/80 blur-3xl" />
         </div>
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-20 pt-14 md:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
           <div>
@@ -155,7 +155,7 @@ export default function LandingPage() {
               <span className="relative whitespace-nowrap text-brand-600">
                 enfin simple
                 <svg aria-hidden viewBox="0 0 300 12" className="absolute -bottom-1.5 left-0 w-full" preserveAspectRatio="none">
-                  <path d="M2 9C60 3 140 2 298 7" stroke="var(--color-clay-400)" strokeWidth="4" fill="none" strokeLinecap="round" />
+                  <path d="M2 9C60 3 140 2 298 7" stroke="var(--color-gold-400)" strokeWidth="4" fill="none" strokeLinecap="round" />
                 </svg>
               </span>
               .
@@ -168,8 +168,8 @@ export default function LandingPage() {
               <Link to="/inscription" className="btn btn-primary btn-lg">
                 Commencer gratuitement <ArrowRight className="size-4" />
               </Link>
-              <Link to="/demo" className="btn btn-secondary btn-lg">
-                Voir la démo
+              <Link to="/connexion" className="btn btn-secondary btn-lg">
+                Se connecter
               </Link>
             </div>
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
@@ -209,7 +209,7 @@ export default function LandingPage() {
       {/* ─── Features ─── */}
       <section id="fonctionnalites" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 md:px-6">
         <div className="max-w-2xl">
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-clay-600">Fonctionnalités</p>
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-600">Fonctionnalités</p>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Moins de saisie, plus de contrôle.</h2>
           <p className="mt-4 text-lg text-muted">
             Chaque écran va à l’essentiel. Les calculs fiscaux, la numérotation et les contrôles d’équilibre sont faits pour vous.
@@ -223,7 +223,7 @@ export default function LandingPage() {
                   <f.icon className="size-5" />
                 </span>
                 {f.soon && (
-                  <span className="rounded-full bg-clay-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-clay-600">
+                  <span className="rounded-full bg-gold-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold-600">
                     Bientôt
                   </span>
                 )}
@@ -239,7 +239,7 @@ export default function LandingPage() {
       <section id="cabinets" className="scroll-mt-20 bg-brand-950 text-white">
         <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-24 md:px-6 lg:grid-cols-2">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-clay-200">Pour les cabinets</p>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-200">Pour les cabinets</p>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Tous vos clients, un seul tableau de bord.</h2>
             <p className="mt-4 text-lg text-white/70">
               Raqib signale ce qui demande votre attention dans chaque dossier : déclarations à déposer, écritures à valider,
@@ -252,7 +252,7 @@ export default function LandingPage() {
                 'Échéances fiscales de tous les clients sur un écran',
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3 text-white/85">
-                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-clay-500">
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold-500">
                     <Check className="size-3.5" />
                   </span>
                   {t}
@@ -280,7 +280,7 @@ export default function LandingPage() {
                   <span
                     className={clsx(
                       'rounded-full px-2.5 py-1 text-xs font-semibold',
-                      r.tone === 'clay' && 'bg-clay-500/20 text-clay-200',
+                      r.tone === 'clay' && 'bg-gold-500/20 text-gold-200',
                       r.tone === 'brand' && 'bg-brand-400/20 text-brand-200',
                       r.tone === 'ok' && 'bg-emerald-400/15 text-emerald-200',
                     )}
@@ -297,13 +297,13 @@ export default function LandingPage() {
       {/* ─── Steps ─── */}
       <section id="etapes" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 md:px-6">
         <div className="text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-clay-600">Comment ça marche</p>
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-600">Comment ça marche</p>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Opérationnel en une matinée.</h2>
         </div>
         <ol className="mt-14 grid gap-6 md:grid-cols-3">
           {STEPS.map(([title, text], i) => (
             <li key={title} className="relative rounded-2xl border border-line bg-surface p-7">
-              <span className="num font-mono text-sm font-semibold text-clay-600">0{i + 1}</span>
+              <span className="num font-mono text-sm font-semibold text-gold-600">0{i + 1}</span>
               <h3 className="mt-3 text-lg font-bold">{title}</h3>
               <p className="mt-2 text-[15px] text-muted">{text}</p>
             </li>
@@ -336,7 +336,7 @@ export default function LandingPage() {
       {/* ─── CTA ─── */}
       <section className="mx-auto max-w-6xl px-4 py-20 md:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-brand-600 px-8 py-14 text-center text-white md:px-16">
-          <div aria-hidden className="absolute -right-20 -top-20 size-72 rounded-full bg-clay-400/40 blur-3xl" />
+          <div aria-hidden className="absolute -right-20 -top-20 size-72 rounded-full bg-gold-400/40 blur-3xl" />
           <p className="relative font-arabic text-3xl text-white/90" lang="ar" dir="rtl">
             رقيب
           </p>
@@ -391,8 +391,8 @@ function HeroPreview() {
                 {r.n}
               </span>
               <span className={clsx('flex-1 truncate', r.g && 'font-semibold')}>{r.l}</span>
-              {r.tag && <span className="rounded-md bg-clay-50 px-1.5 py-0.5 text-[11px] font-semibold text-clay-700">{r.tag}</span>}
-              <span className={clsx('text-xs', r.g ? 'text-faint' : 'text-success-600')}>{r.g ? 'Regroupement' : 'Imputable'}</span>
+              {r.tag && <span className="rounded-md bg-gold-50 px-1.5 py-0.5 text-[11px] font-semibold text-gold-700">{r.tag}</span>}
+              <span className={clsx('text-xs', r.g ? 'text-faint' : 'text-success-600')}>{r.g ? 'Regroupement' : 'Mouvement'}</span>
             </div>
           ))}
         </div>

@@ -1,9 +1,11 @@
 /**
  * Pure logic for the chart of accounts (no React). Everything here is unit-tested.
  *
- * UX rule that keeps things simple: the user never picks an account "type".
- * An account that has sub-accounts is automatically a *compte de regroupement*;
- * any other account is *imputable* (entries can be posted on it).
+ * Numbering (same convention as most Tunisian accounting software):
+ * - 2 or 3 digits  → *compte de regroupement* (40, 401): groups accounts, no entries;
+ * - 8 digits       → *compte de mouvement* (40100186): entries are posted on it.
+ * The user never picks a type: it follows from the length of the number, and the
+ * parent is the longest group whose number is a prefix (40100186 → 401 → 40).
  */
 import { ACCOUNT_CLASSES, SCE_REFERENCE } from './sceReference';
 
@@ -25,12 +27,54 @@ export interface AccountNode extends Account {
   lettrable: boolean;
 }
 
-export const NUMERO_MIN = 2;
-export const NUMERO_MAX = 10;
+/** Length of a compte de mouvement. */
+export const MOUVEMENT_LENGTH = 8;
 export const LIBELLE_MAX = 120;
 
+export function isGroupNumero(numero: string): boolean {
+  return numero.length <= 3;
+}
+
+/** 4011 → 40110000. Numbers of 4 to 7 digits are completed with zeros. */
+export function padNumero(numero: string): string {
+  return numero.length > 3 && numero.length < MOUVEMENT_LENGTH ? numero.padEnd(MOUVEMENT_LENGTH, '0') : numero;
+}
+
+/**
+ * Converts a chart written with variable-length numbers (1011, 4366, 43661…)
+ * to the 8-digit convention:
+ * - 2-digit accounts stay groups (one without sub-accounts also gets a 8-digit account);
+ * - 3-digit accounts with sub-accounts stay groups, the others become 8-digit accounts;
+ * - longer numbers are completed with zeros.
+ */
+export function toEightDigits(accounts: Account[]): Account[] {
+  const numeros = accounts.map((a) => a.numero);
+  const hasChildren = (n: string) => numeros.some((other) => other !== n && other.startsWith(n));
+  const out = new Map<string, Account>();
+  const put = (account: Account) => {
+    if (!out.has(account.numero)) out.set(account.numero, account);
+  };
+  for (const account of sortAccounts(accounts)) {
+    const n = account.numero;
+    if (n.length === 2) {
+      put(account);
+      if (!hasChildren(n)) put({ ...account, numero: n.padEnd(MOUVEMENT_LENGTH, '0') });
+    } else if (n.length === 3 && hasChildren(n)) {
+      put(account);
+    } else {
+      put({ ...account, numero: n.length < MOUVEMENT_LENGTH ? n.padEnd(MOUVEMENT_LENGTH, '0') : n });
+    }
+  }
+  return sortAccounts([...out.values()]);
+}
+
+/** Plans saved before the 8-digit convention contain 4- to 7-digit numbers. */
+export function needsEightDigitMigration(accounts: Account[]): boolean {
+  return accounts.some((a) => a.numero.length > 3 && a.numero.length < MOUVEMENT_LENGTH);
+}
+
 export function referenceAccounts(): Account[] {
-  return SCE_REFERENCE.map(([numero, libelle]) => ({ numero, libelle, actif: true, origine: 'sce' as const }));
+  return toEightDigits(SCE_REFERENCE.map(([numero, libelle]) => ({ numero, libelle, actif: true, origine: 'sce' as const })));
 }
 
 export function sortAccounts(accounts: Account[]): Account[] {
@@ -60,14 +104,11 @@ export function buildTree(accounts: Account[]): Map<string, AccountNode> {
       parent,
       depth: parentNode ? parentNode.depth + 1 : 0,
       children: [],
-      isGroup: false,
+      isGroup: isGroupNumero(account.numero),
       lettrable: account.numero.startsWith('40') || account.numero.startsWith('41'),
     };
     nodes.set(account.numero, node);
-    if (parentNode) {
-      parentNode.children.push(account.numero);
-      parentNode.isGroup = true;
-    }
+    if (parentNode) parentNode.children.push(account.numero);
   }
   return nodes;
 }
@@ -122,9 +163,11 @@ export function validateNumero(numero: string, existing: Set<string>): string | 
   if (!n) return 'Saisissez un numéro de compte.';
   if (!/^\d+$/.test(n)) return 'Le numéro ne doit contenir que des chiffres.';
   if (!/^[1-7]/.test(n)) return 'Le numéro doit commencer par une classe de 1 à 7.';
-  if (n.length < NUMERO_MIN) return `Au moins ${NUMERO_MIN} chiffres (ex. 40, 401).`;
-  if (n.length > NUMERO_MAX) return `Au plus ${NUMERO_MAX} chiffres.`;
-  if (existing.has(n)) return 'Ce numéro existe déjà dans le plan.';
+  if (n.length < 2) return 'Au moins 2 chiffres (ex. 40, 401).';
+  if (n.length > 3 && n.length !== MOUVEMENT_LENGTH) {
+    return `Un compte de mouvement a ${MOUVEMENT_LENGTH} chiffres (ex. 40100186) ; un regroupement en a 2 ou 3 (ex. 401).`;
+  }
+  if (existing.has(n)) return `Le compte ${n} existe déjà dans le plan.`;
   return undefined;
 }
 
@@ -145,25 +188,36 @@ export function validateNewAccount(draft: AccountDraft, accounts: Account[]): Va
   return errors;
 }
 
-/** Next free sub-account number under `parent` (4011, 4012… then 40110…). */
+/**
+ * Next free 8-digit account under a group: 401 → 40100000, then the number
+ * following the highest existing one (40100186 → 40100187).
+ */
 export function suggestChildNumero(parent: string, accounts: Account[]): string {
   const existing = new Set(accounts.map((a) => a.numero));
-  for (let d = 1; d <= 9; d++) {
-    const candidate = `${parent}${d}`;
-    if (!existing.has(candidate)) return candidate;
+  const base = parent.padEnd(MOUVEMENT_LENGTH, '0');
+  const siblings = accounts
+    .map((a) => a.numero)
+    .filter((n) => n.length === MOUVEMENT_LENGTH && n.startsWith(parent))
+    .map(Number);
+  let candidate = siblings.length ? Math.max(...siblings) + 1 : Number(base);
+  for (let tries = 0; tries < 10_000; tries++, candidate++) {
+    const s = String(candidate).padStart(MOUVEMENT_LENGTH, '0');
+    if (!s.startsWith(parent)) break;
+    if (!existing.has(s)) return s;
   }
-  for (let d = 10; d <= 99; d++) {
-    const candidate = `${parent}${d}`;
-    if (candidate.length <= NUMERO_MAX && !existing.has(candidate)) return candidate;
+  // The end of the range is taken: look for a gap from the start.
+  for (let n = Number(base); ; n++) {
+    const s = String(n).padStart(MOUVEMENT_LENGTH, '0');
+    if (!s.startsWith(parent)) return base;
+    if (!existing.has(s)) return s;
   }
-  return parent;
 }
 
 export function canDelete(numero: string, tree: Map<string, AccountNode>): { ok: boolean; reason?: string } {
   const node = tree.get(numero);
   if (!node) return { ok: false, reason: 'Compte introuvable.' };
   if (node.children.length > 0) {
-    return { ok: false, reason: 'Ce compte a des sous-comptes : supprimez-les ou désactivez-le.' };
+    return { ok: false, reason: 'Ce regroupement contient des comptes : supprimez-les d’abord, ou fermez-le.' };
   }
   return { ok: true };
 }
@@ -182,7 +236,7 @@ export function toCsv(accounts: Account[]): string {
   const lines = [CSV_HEADER.join(';')];
   for (const node of tree.values()) {
     lines.push(
-      [node.numero, node.libelle, node.isGroup ? 'Regroupement' : 'Imputable', node.actif ? 'Oui' : 'Non']
+      [node.numero, node.libelle, node.isGroup ? 'Regroupement' : 'Mouvement', node.actif ? 'Oui' : 'Non']
         .map(csvCell)
         .join(';'),
     );
@@ -241,7 +295,8 @@ export function parseCsv(text: string): CsvRow[] {
     const [numero = '', libelle = ''] = parseCsvLine(raw, delimiter);
     // Skip a header line (first cell is not a number).
     if (rows.length === 0 && !/\d/.test(numero)) return;
-    rows.push({ line: index + 1, numero: numero.replace(/\s/g, ''), libelle });
+    // Plans exported by other software often use 4 to 7 digits: complete them to 8.
+    rows.push({ line: index + 1, numero: padNumero(numero.replace(/[\s.]/g, '')), libelle });
   });
   return rows;
 }

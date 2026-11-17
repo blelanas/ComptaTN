@@ -13,14 +13,22 @@ import { NAV_ITEMS } from '@/lib/navigation';
 import { CompanyProvider } from '@/lib/company';
 import { RequireSession, SessionLayout, useSession } from '@/lib/session';
 
-/** /demo: opens the demo workspace (links from the landing page). */
+/**
+ * /demo: old links. The public demo is gone; the local (browser-only) mode
+ * remains for development when Firebase is not configured.
+ */
 function StartDemo() {
-  const { state, startDemo } = useSession();
+  const { state, cloudAvailable, startDemo } = useSession();
   const navigate = useNavigate();
   useEffect(() => {
-    if (state.status !== 'signed-in') startDemo();
+    if (cloudAvailable === null) return;
+    if (cloudAvailable) {
+      navigate(state.status === 'signed-in' ? '/app' : '/connexion', { replace: true });
+      return;
+    }
+    startDemo();
     navigate('/app', { replace: true });
-  }, [state.status, startDemo, navigate]);
+  }, [cloudAvailable, state.status, startDemo, navigate]);
   return null;
 }
 

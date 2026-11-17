@@ -18,12 +18,17 @@ les cabinets comptables.
   - exercices à dates libres ;
   - invitation de collaborateurs par lien.
 - **Plan comptable** complet, enregistré par société :
-  - référentiel SCE (environ 300 comptes) ;
-  - arborescence et recherche ;
-  - création, modification et désactivation des comptes ;
-  - import CSV avec aperçu, export CSV.
-- Recherche rapide `Ctrl+K`.
-- **Mode démo** sans compte : les données restent dans le navigateur.
+  - référentiel SCE, comptes de mouvement à 8 chiffres ;
+  - recherche, filtre par classe, affichage des regroupements ;
+  - panneau d’actions : création (prochain numéro proposé), modification,
+    fermeture, suppression protégée ;
+  - import CSV avec aperçu, export CSV, impression.
+- Interface : menu latéral par modules (Saisies, Comptabilité, Ventes & achats…),
+  société et exercice dans la barre du haut, recherche rapide `Ctrl+K`.
+- Identité visuelle : logo et couleurs dans `docs/brand/` et `src/index.css`.
+
+Il n’y a pas de démo publique. En développement, sans configuration Firebase,
+l’application s’ouvre en **mode local** (données dans le navigateur).
 
 Les données des comptes sont enregistrées dans **Cloud Firestore** (plan gratuit
 Spark). Les règles de sécurité sont dans `firestore.rules` ; le modèle de données
@@ -93,7 +98,7 @@ Dans la console Firebase :
 4. **Firestore Database → Règles** : coller le contenu de `firestore.rules`, puis
    **Publier**. À refaire à chaque modification de ce fichier.
 
-En local, sans accès à Firebase, seule la démo fonctionne. Pour utiliser un vrai
+En local, sans accès à Firebase, seul le mode local fonctionne. Pour utiliser un vrai
 projet en local, définir `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID` et
 `VITE_FIREBASE_APP_ID` dans un fichier `.env.local`.
 
@@ -122,12 +127,18 @@ firestore.rules          Règles de sécurité Firestore
 docs/                    Fonctionnalités et analyse de la concurrence
 ```
 
-## Règle de simplicité du plan comptable
+## Numérotation du plan comptable
 
-L’utilisateur ne choisit jamais le « type » d’un compte. La hiérarchie se déduit
-des numéros : `4011` est rattaché à `401`, lui-même rattaché à `40`. Un compte qui
-a des sous-comptes devient un **compte de regroupement**. Les autres sont
-**imputables**.
+L’utilisateur ne choisit jamais le « type » d’un compte : il se déduit du numéro.
+
+- **2 ou 3 chiffres** (`40`, `401`) : **compte de regroupement**, il regroupe des
+  comptes et ne reçoit pas d’écritures.
+- **8 chiffres** (`40100186`) : **compte de mouvement**, on y passe les écritures.
+
+La hiérarchie se déduit des préfixes : `40100186` est rattaché à `401`, lui-même
+rattaché à `40`. Les plans enregistrés avec l’ancienne numérotation (`4011`) sont
+convertis automatiquement à l’ouverture (`40110000`), et les numéros de 4 à 7
+chiffres sont complétés à 8 lors d’un import.
 
 ⚠️ Le plan de référence suit la nomenclature SCE. Il doit être relu par un
 expert-comptable avant la mise en production, car certains sous-comptes (TVA,

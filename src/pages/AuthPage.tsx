@@ -29,7 +29,7 @@ function SidePanel() {
   return (
     <div className="relative hidden overflow-hidden bg-brand-950 p-12 text-white lg:flex lg:flex-col">
       <div aria-hidden className="absolute -left-20 top-1/3 size-96 rounded-full bg-brand-600/40 blur-3xl" />
-      <div aria-hidden className="absolute -bottom-24 right-0 size-80 rounded-full bg-clay-500/25 blur-3xl" />
+      <div aria-hidden className="absolute -bottom-24 right-0 size-80 rounded-full bg-gold-500/25 blur-3xl" />
       <Link to="/" className="relative">
         <Logo inverted />
       </Link>
@@ -140,8 +140,8 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
           {unavailable && (
             <div className="mt-6">
               <Alert tone="info">
-                La connexion n’est pas disponible sur cette version (Firebase n’est pas configuré ici). Vous pouvez
-                explorer la démo.
+                Firebase n’est pas configuré sur cette version de développement : la connexion est indisponible. Vous
+                pouvez ouvrir l’application en mode local.
               </Alert>
             </div>
           )}
@@ -253,15 +253,16 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
             )}
           </p>
 
-          {mode !== 'reset' && (
+          {/* Local mode exists only for development without Firebase; the deployed site never shows it. */}
+          {unavailable && mode !== 'reset' && (
             <>
               <div className="my-6 flex items-center gap-3 text-xs text-faint">
                 <span className="h-px flex-1 bg-line" /> ou <span className="h-px flex-1 bg-line" />
               </div>
               <button type="button" onClick={startDemo} className="btn btn-secondary btn-lg w-full">
-                Explorer la démo
+                Ouvrir en mode local
               </button>
-              <p className="mt-3 text-center text-xs text-faint">La démo garde les données dans ce navigateur.</p>
+              <p className="mt-3 text-center text-xs text-faint">Les données restent dans ce navigateur.</p>
             </>
           )}
         </div>

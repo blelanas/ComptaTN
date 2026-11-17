@@ -45,7 +45,7 @@ export function ImportDialog({ open, onClose, onImported }: { open: boolean; onC
       onClose={close}
       size="lg"
       title="Importer des comptes"
-      description="Un compte par ligne : numéro puis libellé, séparés par « ; », une tabulation ou une virgule. Depuis Excel : Enregistrer sous → CSV."
+      description="Un compte par ligne : numéro puis libellé, séparés par « ; », une tabulation ou une virgule. Depuis Excel : Enregistrer sous → CSV. Les numéros de 4 à 7 chiffres sont complétés à 8 (4011 → 40110000)."
       footer={
         <>
           <button className="btn btn-secondary" onClick={close}>
@@ -75,7 +75,7 @@ export function ImportDialog({ open, onClose, onImported }: { open: boolean; onC
           </label>
           <textarea
             className="input h-36 resize-y py-2 font-mono text-[13px]"
-            placeholder={'4011;Fournisseurs locaux\n4012;Fournisseurs étrangers\n5321;Banque BIAT'}
+            placeholder={'40100001;Fournisseur Sahel Équipements\n41100001;Client Carthage Services\n53210001;Banque BIAT'}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />

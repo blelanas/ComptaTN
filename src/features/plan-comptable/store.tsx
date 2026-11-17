@@ -1,5 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { applyImport, buildTree, referenceAccounts, sortAccounts, type Account, type AccountNode, type ImportLine } from './accounts';
+import {
+  applyImport,
+  buildTree,
+  needsEightDigitMigration,
+  referenceAccounts,
+  sortAccounts,
+  toEightDigits,
+  type Account,
+  type AccountNode,
+  type ImportLine,
+} from './accounts';
 import { useCompany } from '@/lib/company';
 import { errorMessage } from '@/lib/errors';
 import { useCurrentUser } from '@/lib/session';
@@ -83,7 +93,9 @@ export function PlanComptableProvider({ children }: { children: ReactNode }) {
       .loadPlan(company.id)
       .then((saved) => {
         if (cancelled) return;
-        const value = saved ?? referenceAccounts();
+        // Plans saved before the 8-digit convention are converted when opened
+        // (and written back with the next change).
+        const value = !saved ? referenceAccounts() : needsEightDigitMigration(saved) ? toEightDigits(saved) : saved;
         current.current = value;
         setAccounts(value);
         setStatus('ready');

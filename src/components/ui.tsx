@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 const BADGE_TONES = {
   neutral: 'bg-ink/5 text-ink-soft',
   brand: 'bg-brand-50 text-brand-700',
-  clay: 'bg-clay-50 text-clay-700',
+  gold: 'bg-gold-50 text-gold-700',
   success: 'bg-success-50 text-success-600',
   danger: 'bg-danger-50 text-danger-600',
   warning: 'bg-warning-50 text-warning-600',

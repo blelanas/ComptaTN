@@ -47,11 +47,11 @@ Statut : ✅ fait · 🟡 partiel · ⬜ à faire
 | ID | Fonctionnalité | Priorité | Statut |
 |----|----------------|----------|--------|
 | PC-01 | Plan de référence SCE installé à la création de la société | MVP | ✅ |
-| PC-02 | Arborescence par classe (1 à 7), dépliage, regroupements déduits des numéros | MVP | ✅ |
+| PC-02 | Numérotation à 8 chiffres (mouvement) et regroupements à 2–3 chiffres, type déduit du numéro, filtre par classe (1 à 7, Fournisseurs, Clients, État) | MVP | ✅ |
 | PC-03 | Création de compte avec aperçu du rattachement et suggestion du prochain numéro libre | MVP | ✅ |
-| PC-04 | Modification du libellé, activation / désactivation | MVP | ✅ |
+| PC-04 | Modification du libellé, fermeture / réouverture d’un compte | MVP | ✅ |
 | PC-05 | Suppression protégée (refusée si sous-comptes ; plus tard si écritures) | MVP | 🟡 |
-| PC-06 | Recherche par numéro ou libellé (sans accents), filtre par classe, vue « comptes imputables » | MVP | ✅ |
+| PC-06 | Recherche par numéro ou libellé (sans accents), filtre par classe, bascule « Afficher les regroupements » | MVP | ✅ |
 | PC-07 | Import CSV / Excel avec aperçu (nouveau, modifié, identique, erreur) | MVP | ✅ CSV |
 | PC-08 | Export CSV compatible Excel | MVP | ✅ |
 | PC-09 | Import d’un fichier `.xlsx` natif et import assisté par IA (colonnes devinées) | V2 | ⬜ |

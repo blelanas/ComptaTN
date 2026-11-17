@@ -14,7 +14,7 @@ export default function ComingSoonPage({ item }: { item: NavItem }) {
 
         {item.upcoming && (
           <>
-            <p className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-clay-600">
+            <p className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gold-600">
               <Sparkles className="size-3.5" /> En préparation
             </p>
             <ul className="mt-3 space-y-2.5">

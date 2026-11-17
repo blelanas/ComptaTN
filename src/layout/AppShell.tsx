@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { CalendarDays, LogOut, Menu, Search, X } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChevronDown, LogOut, Menu, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
@@ -8,100 +8,167 @@ import { VerifyEmailHint } from '@/features/societes/InvitationCard';
 import { formatDate, initials, sortExercices } from '@/features/societes/model';
 import { CommandPalette } from '@/layout/CommandPalette';
 import { useCompany } from '@/lib/company';
-import { NAV_SECTIONS } from '@/lib/navigation';
+import { NAV, type NavEntry, type NavItem } from '@/lib/navigation';
 import { useCurrentUser, useSession } from '@/lib/session';
 
+const isActivePath = (pathname: string, item: NavItem) =>
+  item.path === '/app' ? pathname === '/app' : pathname === item.path || pathname.startsWith(`${item.path}/`);
+
+function groupContains(entry: NavEntry, pathname: string) {
+  return (entry.items ?? []).some((item) => isActivePath(pathname, item));
+}
+
+// ───────────────────────────── Sidebar ─────────────────────────────
+
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+  const { pathname } = useLocation();
+  // Groups the user opened; the group of the current page is always open.
+  const [opened, setOpened] = useState<Set<string>>(() => new Set(['Comptabilité']));
+
+  useEffect(() => {
+    const current = NAV.find((entry) => groupContains(entry, pathname));
+    if (current) setOpened((prev) => (prev.has(current.label) ? prev : new Set(prev).add(current.label)));
+  }, [pathname]);
+
+  const toggle = (label: string) =>
+    setOpened((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+
   return (
-    <nav className="flex h-full flex-col" aria-label="Navigation principale">
-      <div className="flex h-16 items-center px-5">
-        <Link to="/app" onClick={onNavigate}>
-          <Logo />
+    <nav
+      className="flex h-full flex-col bg-[linear-gradient(180deg,#081633_0%,#0B1F44_60%,#0C2747_100%)] text-brand-200"
+      aria-label="Navigation principale"
+    >
+      <div className="px-6 pb-5 pt-6">
+        <Link to="/app" onClick={onNavigate} aria-label="Raqib, tableau de bord">
+          <Logo inverted tagline />
         </Link>
       </div>
-      <div className="flex-1 space-y-5 overflow-y-auto px-3 pb-4 pt-2">
-        {NAV_SECTIONS.map((section, i) => (
-          <div key={section.title ?? i}>
-            {section.title && (
-              <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-faint">{section.title}</p>
-            )}
-            <ul className="space-y-0.5">
-              {section.items.map((item) => (
-                <li key={item.path}>
-                  <NavLink
-                    to={item.path}
-                    end={item.path === '/app'}
-                    onClick={onNavigate}
-                    className={({ isActive }: { isActive: boolean }) =>
-                      clsx(
-                        'group flex items-center gap-3 rounded-lg px-3 py-2 text-[14px] font-medium transition-colors',
-                        isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-soft hover:bg-ink/[0.04] hover:text-ink',
-                      )
-                    }
-                  >
-                    {({ isActive }: { isActive: boolean }) => (
-                      <>
-                        <item.icon className={clsx('size-[18px]', isActive ? 'text-brand-600' : 'text-faint group-hover:text-muted')} />
+
+      <div className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4 [scrollbar-color:rgb(255_255_255/0.15)_transparent]">
+        {NAV.map((entry) => {
+          if (entry.item) {
+            const item = entry.item;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/app'}
+                onClick={onNavigate}
+                className={({ isActive }: { isActive: boolean }) =>
+                  clsx(
+                    'flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[14px] font-medium transition-colors',
+                    isActive
+                      ? 'bg-white/[0.09] font-semibold text-white shadow-[inset_3px_0_0_var(--color-gold-500)]'
+                      : 'hover:bg-white/[0.06] hover:text-white',
+                  )
+                }
+              >
+                <entry.icon className="size-[19px] shrink-0" strokeWidth={1.8} />
+                <span className="flex-1">{entry.label}</span>
+              </NavLink>
+            );
+          }
+          const containsCurrent = groupContains(entry, pathname);
+          const open = opened.has(entry.label) || containsCurrent;
+          return (
+            <div key={entry.label}>
+              <button
+                className={clsx(
+                  'flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left text-[14px] transition-colors hover:bg-white/[0.06] hover:text-white',
+                  containsCurrent ? 'font-semibold text-white' : 'font-medium',
+                )}
+                aria-expanded={open}
+                onClick={() => toggle(entry.label)}
+              >
+                <entry.icon className="size-[19px] shrink-0" strokeWidth={1.8} />
+                <span className="flex-1">{entry.label}</span>
+                <ChevronDown className={clsx('size-4 transition-transform', open ? 'rotate-0' : '-rotate-90')} />
+              </button>
+              {open && (
+                <ul className="space-y-0.5 pb-1.5 pl-[31px] pt-0.5">
+                  {entry.items!.map((item) => (
+                    <li key={item.path}>
+                      <NavLink
+                        to={item.path}
+                        onClick={onNavigate}
+                        className={({ isActive }: { isActive: boolean }) =>
+                          clsx(
+                            'flex items-center gap-2 rounded-[9px] px-3 py-[7px] text-[13.5px] transition-colors',
+                            isActive
+                              ? 'bg-white/[0.09] font-bold text-white shadow-[inset_3px_0_0_var(--color-gold-500)]'
+                              : 'text-brand-200/90 hover:text-white',
+                          )
+                        }
+                      >
                         <span className="flex-1">{item.label}</span>
-                        {item.status === 'soon' && (
-                          <span className="text-[10px] font-semibold uppercase tracking-wide text-faint">Bientôt</span>
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+                        {item.status === 'soon' && <span className="size-1.5 rounded-full bg-white/20" title="Bientôt" />}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </div>
-      <UserBlock />
+      <UserCard />
     </nav>
   );
 }
 
-function UserBlock() {
-  const { user, isDemo } = useCurrentUser();
+function useRole() {
+  const { user } = useCurrentUser();
   const { company } = useCompany();
+  return company.members[user.uid]?.role === 'proprietaire' ? 'Propriétaire' : 'Membre';
+}
+
+function UserCard() {
+  const { user, isDemo } = useCurrentUser();
+  const role = useRole();
   const { signOut } = useSession();
   const navigate = useNavigate();
-  const role = company.members[user.uid]?.role === 'proprietaire' ? 'Propriétaire' : 'Membre';
   return (
-    <div className="border-t border-line p-4">
-      <div className="flex items-center gap-3">
-        <div className="grid size-9 shrink-0 place-items-center rounded-full bg-clay-100 text-sm font-bold text-clay-700">
-          {initials(user.nom)}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold">{user.nom}</p>
-          <p className="truncate text-xs text-muted">{isDemo ? 'Mode démo' : `${role} · ${user.email}`}</p>
-        </div>
-        <button
-          className="btn btn-ghost h-8 w-8 px-0"
-          title={isDemo ? 'Quitter la démo' : 'Se déconnecter'}
-          aria-label={isDemo ? 'Quitter la démo' : 'Se déconnecter'}
-          onClick={async () => {
-            await signOut();
-            navigate('/');
-          }}
-        >
-          <LogOut className="size-4" />
-        </button>
-      </div>
+    <div className="m-3 mt-0 flex items-center gap-3 rounded-[14px] border border-white/[0.08] bg-white/[0.06] p-3">
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gold-500 text-[13px] font-extrabold text-brand-950">
+        {initials(user.nom)}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13.5px] font-bold text-white">{user.nom}</span>
+        <span className="flex items-center gap-1.5 truncate text-xs text-brand-200">
+          {isDemo ? 'Mode local' : role}
+          <span className="inline-block size-1.5 rounded-full bg-gold-500" />
+          Actif
+        </span>
+      </span>
+      <button
+        className="grid size-8 shrink-0 place-items-center rounded-lg text-brand-200 hover:bg-white/10 hover:text-white"
+        title="Se déconnecter"
+        aria-label="Se déconnecter"
+        onClick={async () => {
+          await signOut();
+          navigate('/');
+        }}
+      >
+        <LogOut className="size-4" />
+      </button>
     </div>
   );
 }
 
-/** Demo and unverified-e-mail notices, above the top bar. */
+// ───────────────────────────── Top bar ─────────────────────────────
+
+/** Unverified e-mail and local-mode notices, above the top bar. */
 function SessionBanner() {
   const { user, isDemo } = useCurrentUser();
   if (isDemo) {
     return (
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-clay-50 px-4 py-2 text-center text-[13px] text-clay-700">
-        <span>Mode démo : vos données restent dans ce navigateur.</span>
-        <Link to="/inscription" className="font-semibold underline underline-offset-2">
-          Créer un compte gratuit
-        </Link>
+      <div className="bg-gold-50 px-4 py-1.5 text-center text-[12.5px] text-gold-700">
+        Mode local (développement) : Firebase n’est pas configuré, les données restent dans ce navigateur.
       </div>
     );
   }
@@ -115,51 +182,83 @@ function SessionBanner() {
   return null;
 }
 
-function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () => void }) {
+function ExerciceSelect() {
   const { company, exercice, setExercice } = useCompany();
   const exercices = sortExercices(company.exercices);
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-paper/85 px-4 backdrop-blur md:px-8">
-      <button className="btn btn-ghost h-9 w-9 shrink-0 px-0 lg:hidden" onClick={onMenu} aria-label="Ouvrir le menu">
+    <label
+      className="relative flex h-10 shrink-0 items-center rounded-[10px] border border-line-strong bg-surface pl-3 pr-2.5 hover:bg-paper"
+      title={`Du ${formatDate(exercice.debut)} au ${formatDate(exercice.fin)}`}
+    >
+      <span className="sr-only">Exercice</span>
+      <select
+        className="cursor-pointer appearance-none bg-transparent pr-7 text-sm font-semibold focus:outline-none"
+        value={exercice.annee}
+        onChange={(e) => setExercice(Number(e.target.value))}
+      >
+        {exercices.map((ex) => (
+          <option key={ex.annee} value={ex.annee}>
+            Exercice {ex.annee}
+            {ex.statut === 'cloture' ? ' (clôturé)' : ''}
+          </option>
+        ))}
+      </select>
+      <CalendarDays className="pointer-events-none absolute right-2.5 size-4 text-muted" />
+    </label>
+  );
+}
+
+function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () => void }) {
+  const { user } = useCurrentUser();
+  const role = useRole();
+  const navigate = useNavigate();
+  return (
+    <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center gap-2.5 border-b border-line bg-surface px-4 py-3 md:px-7">
+      <button
+        className="grid size-10 shrink-0 place-items-center rounded-[10px] text-ink-soft hover:bg-paper"
+        onClick={onMenu}
+        aria-label="Afficher ou masquer le menu"
+      >
         <Menu className="size-5" />
       </button>
-
-      <CompanySwitcher />
-
-      <label
-        className="flex shrink-0 items-center gap-2 rounded-lg border border-line bg-surface px-3 py-1.5 shadow-card"
-        title={`Du ${formatDate(exercice.debut)} au ${formatDate(exercice.fin)}`}
-      >
-        <CalendarDays className="size-4 text-faint" />
-        <span className="sr-only">Exercice</span>
-        <select
-          className="cursor-pointer bg-transparent text-sm font-semibold focus:outline-none"
-          value={exercice.annee}
-          onChange={(e) => setExercice(Number(e.target.value))}
-        >
-          {exercices.map((ex) => (
-            <option key={ex.annee} value={ex.annee}>
-              Exercice {ex.annee}
-              {ex.statut === 'cloture' ? ' (clôturé)' : ''}
-            </option>
-          ))}
-        </select>
-      </label>
-
       <button
-        onClick={onSearch}
-        className="ml-auto flex h-9 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm text-muted shadow-card hover:border-line-strong md:w-72"
+        className="hidden h-10 shrink-0 items-center gap-2 rounded-[10px] border border-line-strong bg-surface px-3.5 text-sm font-semibold hover:bg-paper sm:flex"
+        onClick={() => navigate(-1)}
       >
-        <Search className="size-4" />
-        <span className="hidden flex-1 truncate text-left md:block">Rechercher…</span>
-        <span className="kbd hidden md:inline-flex">Ctrl K</span>
+        <ArrowLeft className="size-4" /> Retour
       </button>
+      <CompanySwitcher />
+      <ExerciceSelect />
+
+      <div className="ml-auto flex items-center gap-2.5">
+        <button
+          onClick={onSearch}
+          className="flex h-10 items-center gap-2 rounded-[10px] border border-line-strong bg-surface px-3 text-sm text-muted hover:bg-paper xl:w-64"
+          aria-label="Rechercher"
+        >
+          <Search className="size-4" />
+          <span className="hidden flex-1 truncate text-left xl:block">Rechercher…</span>
+          <span className="kbd hidden xl:inline-flex">Ctrl K</span>
+        </button>
+        <Link to="/app/parametres" className="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-3 hover:bg-paper" title="Paramètres">
+          <span className="grid size-10 place-items-center rounded-full bg-brand-900 text-[13px] font-extrabold text-white shadow-[0_0_0_2px_#fff,0_0_0_4px_var(--color-gold-500)]">
+            {initials(user.nom)}
+          </span>
+          <span className="hidden flex-col leading-tight md:flex">
+            <span className="max-w-40 truncate text-sm font-bold">{user.nom}</span>
+            <span className="text-xs text-muted">{role}</span>
+          </span>
+        </Link>
+      </div>
     </header>
   );
 }
 
+// ───────────────────────────── Layout ─────────────────────────────
+
 export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
 
@@ -176,19 +275,27 @@ export default function AppShell() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Large screens: the menu button folds the sidebar away. Small screens: it opens it.
+  const onMenu = () => {
+    if (window.matchMedia('(min-width: 1024px)').matches) setCollapsed((c) => !c);
+    else setMobileOpen(true);
+  };
+
   return (
     <>
-      <div className="min-h-screen lg:pl-64">
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-line bg-surface lg:block">
-          <Sidebar />
-        </aside>
+      <div className={clsx('min-h-screen bg-paper', !collapsed && 'lg:pl-[272px]', 'print:pl-0')}>
+        {!collapsed && (
+          <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] lg:block print:hidden">
+            <Sidebar />
+          </aside>
+        )}
 
         {mobileOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
-            <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileOpen(false)} />
-            <aside className="absolute inset-y-0 left-0 w-72 bg-surface shadow-pop">
+            <div className="absolute inset-0 bg-brand-950/50" onClick={() => setMobileOpen(false)} />
+            <aside className="absolute inset-y-0 left-0 w-[284px] max-w-[85vw] shadow-pop">
               <button
-                className="btn btn-ghost absolute right-3 top-3.5 h-9 w-9 px-0"
+                className="absolute right-3 top-5 z-10 grid size-9 place-items-center rounded-lg text-brand-200 hover:bg-white/10"
                 onClick={() => setMobileOpen(false)}
                 aria-label="Fermer le menu"
               >
@@ -199,9 +306,11 @@ export default function AppShell() {
           </div>
         )}
 
-        <SessionBanner />
-        <Topbar onMenu={() => setMobileOpen(true)} onSearch={() => setPaletteOpen(true)} />
-        <main className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+        <div className="print:hidden">
+          <SessionBanner />
+          <Topbar onMenu={onMenu} onSearch={() => setPaletteOpen(true)} />
+        </div>
+        <main className="px-4 py-6 md:px-7">
           <Outlet />
         </main>
       </div>

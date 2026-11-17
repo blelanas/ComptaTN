@@ -33,13 +33,13 @@ export function CompanySwitcher() {
   return (
     <div className="relative min-w-0" ref={ref}>
       <button
-        className="relative flex min-w-0 items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-left shadow-card hover:border-line-strong"
+        className="relative flex h-10 min-w-0 items-center gap-2.5 rounded-[10px] border border-line-strong bg-surface pl-1.5 pr-3 text-left hover:bg-paper"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
         title="Changer de société"
       >
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-brand-600 text-xs font-bold text-white">
+        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-brand-900 text-xs font-bold text-gold-400">
           {company.code}
         </span>
         <span className="hidden min-w-0 sm:block">
@@ -50,7 +50,7 @@ export function CompanySwitcher() {
         </span>
         <ChevronDown className="size-4 text-faint" />
         {invitations.length > 0 && (
-          <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-clay-500 text-[10px] font-bold text-white">
+          <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-gold-500 text-[10px] font-bold text-white">
             {invitations.length}
           </span>
         )}
@@ -77,7 +77,7 @@ export function CompanySwitcher() {
                     }
                   }}
                 >
-                  <span className="grid size-7 shrink-0 place-items-center rounded-md bg-brand-600 text-xs font-bold text-white">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-md bg-brand-900 text-xs font-bold text-gold-400">
                     {c.code}
                   </span>
                   <span className="min-w-0 flex-1">

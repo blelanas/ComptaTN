@@ -104,12 +104,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const state = useMemo<SessionState>(() => {
     if (firebaseUser) return { status: 'signed-in', user: toSessionUser(firebaseUser) };
-    if (demo) return { status: 'demo', user: DEMO_USER };
+    // Local mode only exists where Firebase is not configured (development).
+    if (demo && cloudAvailable === false) return { status: 'demo', user: DEMO_USER };
     if (firebaseUser === undefined) return { status: 'loading' };
     return { status: 'signed-out' };
     // userVersion: the Firebase user is mutated in place by reload()/updateProfile().
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseUser, demo, userVersion]);
+  }, [firebaseUser, demo, cloudAvailable, userVersion]);
 
   const who = state.status === 'signed-in' || state.status === 'demo' ? `${state.user.uid}|${state.user.nom}` : null;
   const repo = useMemo<Repository | null>(() => {

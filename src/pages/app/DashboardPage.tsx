@@ -57,10 +57,10 @@ export default function DashboardPage() {
           aria-hidden
           className="absolute -right-24 -top-24 size-80 rounded-full bg-brand-600/40 blur-3xl"
         />
-        <div aria-hidden className="absolute -bottom-32 right-40 size-72 rounded-full bg-clay-500/25 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-32 right-40 size-72 rounded-full bg-gold-500/25 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-clay-200">Bienvenue</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">Bienvenue</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight">{company.raisonSociale}</h1>
             <p className="mt-1 text-sm text-white/70">
               Exercice {exercice.annee} · du {formatDate(exercice.debut)} au {formatDate(exercice.fin)}
@@ -134,7 +134,7 @@ export default function DashboardPage() {
             <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
               {[
                 ['Comptes', nodes.length],
-                ['Imputables', imputables],
+                ['Mouvement', imputables],
                 ['Personnalisés', personnalises],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl bg-paper px-2 py-3">
@@ -154,7 +154,7 @@ export default function DashboardPage() {
                 { icon: Scale, text: 'Balance, grand livre et états financiers' },
               ].map((x) => (
                 <li key={x.text} className="flex items-center gap-3 text-ink-soft">
-                  <span className="grid size-8 place-items-center rounded-lg bg-clay-50 text-clay-600">
+                  <span className="grid size-8 place-items-center rounded-lg bg-gold-50 text-gold-600">
                     <x.icon className="size-4" />
                   </span>
                   {x.text}

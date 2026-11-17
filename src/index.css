@@ -1,41 +1,41 @@
 @import "tailwindcss";
 
 /* ───────────────────────── Raqib design tokens ─────────────────────────
-   Paper-warm neutrals, a "Sidi Bou Saïd" blue for actions and a
-   terracotta accent (Nabeul pottery) used sparingly for highlights. */
+   Taken from the logo (docs/brand/raqib-logo.webp): deep navy (#0B1F44)
+   for structure and actions, gold (#D4A12E) as the accent, cool neutrals. */
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
   --font-arabic: "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
 
-  --color-paper: #f7f5f0;
+  --color-paper: #f3f5f9;
   --color-surface: #ffffff;
-  --color-line: #e8e4dc;
-  --color-line-strong: #d6d0c4;
-  --color-ink: #161a26;
-  --color-ink-soft: #2e3342;
-  --color-muted: #646a78;
-  --color-faint: #9097a3;
+  --color-line: #e3e8f0;
+  --color-line-strong: #d3dae6;
+  --color-ink: #0f172a;
+  --color-ink-soft: #334155;
+  --color-muted: #5b6478;
+  --color-faint: #8a93a6;
 
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #dce7fe;
-  --color-brand-200: #b9cffc;
-  --color-brand-300: #8eb0f7;
-  --color-brand-400: #5b88ec;
-  --color-brand-500: #3369dd;
-  --color-brand-600: #1f57c7;
-  --color-brand-700: #1a47a3;
-  --color-brand-800: #183c83;
-  --color-brand-900: #142f63;
-  --color-brand-950: #0c1b3a;
+  --color-brand-50: #eef2f9;
+  --color-brand-100: #dce4f2;
+  --color-brand-200: #b9c8e4;
+  --color-brand-300: #8ea5d0;
+  --color-brand-400: #5e7db6;
+  --color-brand-500: #3a5c9e;
+  --color-brand-600: #1f4285;
+  --color-brand-700: #17336a;
+  --color-brand-800: #112856;
+  --color-brand-900: #0b1f44;
+  --color-brand-950: #071530;
 
-  --color-clay-50: #fdf3ee;
-  --color-clay-100: #fae3d7;
-  --color-clay-200: #f4c4ab;
-  --color-clay-400: #e58a5e;
-  --color-clay-500: #d96c3b;
-  --color-clay-600: #c2552a;
-  --color-clay-700: #9c4222;
+  --color-gold-50: #fbf6e9;
+  --color-gold-100: #f5e8c4;
+  --color-gold-200: #ebd08a;
+  --color-gold-400: #ddb04a;
+  --color-gold-500: #d4a12e;
+  --color-gold-600: #b5861f;
+  --color-gold-700: #8a6516;
 
   --color-success-50: #ecfdf3;
   --color-success-600: #138a4b;
@@ -72,7 +72,7 @@
       transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap;
   }
   .btn-primary {
-    @apply bg-brand-600 text-white hover:bg-brand-700;
+    @apply bg-brand-900 text-white hover:bg-brand-700;
   }
   .btn-secondary {
     @apply bg-surface text-ink border border-line-strong hover:bg-paper;
@@ -88,6 +88,9 @@
   }
   .card {
     @apply bg-surface border border-line rounded-2xl shadow-card;
+  }
+  .btn-gold {
+    @apply bg-gold-500 text-brand-950 hover:bg-gold-400;
   }
   .input {
     @apply w-full h-10 rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink
