@@ -14,11 +14,13 @@ import {
   Percent,
   ScanLine,
   ShieldCheck,
+  Sparkles,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
+import { CountUp, Reveal, delay, useInView } from '@/components/motion';
 
 const NAV = [
   ['Fonctionnalités', '#fonctionnalites'],
@@ -61,6 +63,19 @@ const FEATURES = [
   },
 ];
 
+const TICKER = [
+  'Plan comptable SCE',
+  'TVA 19 · 13 · 7 %',
+  'Droit de timbre',
+  'Retenue à la source',
+  'TFP & FOPROLOS',
+  'Déclaration mensuelle',
+  'Facture El Fatoora',
+  'Multi-sociétés',
+  'Import Excel',
+  'TND à 3 décimales',
+];
+
 const STEPS = [
   ['Créez votre société', 'Matricule fiscal, exercice : le plan comptable SCE est installé automatiquement.'],
   ['Reprenez l’existant', 'Importez votre plan, vos tiers et votre balance d’ouverture depuis Excel.'],
@@ -89,18 +104,46 @@ const FAQ = [
 export default function LandingPage() {
   const [menu, setMenu] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [scrolled, setScrolled] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Soft light that follows the pointer over the hero.
+  const onHeroMove = (e: MouseEvent<HTMLElement>) => {
+    const el = heroRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+    el.style.setProperty('--my', `${e.clientY - r.top}px`);
+  };
 
   return (
-    <div className="bg-paper">
+    <div className="overflow-x-clip bg-paper">
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/85 backdrop-blur">
+      <header
+        className={clsx(
+          'sticky top-0 z-40 border-b transition-[background-color,box-shadow,border-color] duration-300',
+          scrolled ? 'border-line/80 bg-paper/85 shadow-[0_8px_24px_-16px_rgb(11_31_68/0.25)] backdrop-blur' : 'border-transparent bg-transparent',
+        )}
+      >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-          <Link to="/" aria-label="Raqib, accueil">
+          <Link to="/" aria-label="Raqib, accueil" className="animate-fade">
             <Logo />
           </Link>
           <nav className="hidden items-center gap-7 text-sm font-medium text-ink-soft md:flex">
-            {NAV.map(([label, href]) => (
-              <a key={href} href={href} className="hover:text-ink">
+            {NAV.map(([label, href], i) => (
+              <a
+                key={href}
+                href={href}
+                className="animate-rise relative py-1 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-gold-500 after:transition-transform hover:text-ink hover:after:scale-x-100"
+                style={delay(80 + i * 60)}
+              >
                 {label}
               </a>
             ))}
@@ -109,7 +152,7 @@ export default function LandingPage() {
             <Link to="/connexion" className="btn btn-ghost">
               Se connecter
             </Link>
-            <Link to="/inscription" className="btn btn-primary">
+            <Link to="/inscription" className="btn btn-primary shine">
               Essai gratuit
             </Link>
           </div>
@@ -118,7 +161,7 @@ export default function LandingPage() {
           </button>
         </div>
         {menu && (
-          <div className="border-t border-line bg-paper px-4 py-4 md:hidden">
+          <div className="animate-fade border-t border-line bg-paper px-4 py-4 md:hidden">
             <nav className="flex flex-col gap-1">
               {NAV.map(([label, href]) => (
                 <a key={href} href={href} onClick={() => setMenu(false)} className="rounded-lg px-3 py-2 font-medium hover:bg-ink/5">
@@ -139,42 +182,63 @@ export default function LandingPage() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden">
+      <section ref={heroRef} onMouseMove={onHeroMove} className="relative -mt-16 overflow-hidden pt-16">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-brand-100/70 blur-3xl" />
-          <div className="absolute right-[8%] top-40 size-72 rounded-full bg-gold-100/80 blur-3xl" />
+          <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,black,transparent)]" />
+          <div className="animate-drift absolute -top-40 left-[20%] h-[480px] w-[720px] rounded-full bg-brand-100/80 blur-3xl" />
+          <div className="animate-drift absolute right-[4%] top-36 size-80 rounded-full bg-gold-100/90 blur-3xl" style={delay(-6000)} />
+          <div
+            className="absolute inset-0 opacity-70 transition-opacity"
+            style={{
+              background:
+                'radial-gradient(420px circle at var(--mx, 70%) var(--my, 30%), rgb(212 161 46 / 0.10), transparent 70%)',
+            }}
+          />
         </div>
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-20 pt-14 md:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface px-3 py-1 text-xs font-semibold text-ink-soft shadow-card">
-              <BadgeCheck className="size-4 text-brand-600" />
+            <span
+              className="animate-rise inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface/90 px-3 py-1 text-xs font-semibold text-ink-soft shadow-card"
+              style={delay(0)}
+            >
+              <span className="relative flex size-2">
+                <span className="animate-ping-soft absolute inset-0 rounded-full bg-success-600" />
+                <span className="relative size-2 rounded-full bg-success-600" />
+              </span>
               Conforme au SCE tunisien · TVA · Retenue à la source
             </span>
             <h1 className="mt-6 text-[42px] font-extrabold leading-[1.05] tracking-tight text-ink md:text-[58px]">
-              La comptabilité tunisienne,{' '}
-              <span className="relative whitespace-nowrap text-brand-600">
-                enfin simple
-                <svg aria-hidden viewBox="0 0 300 12" className="absolute -bottom-1.5 left-0 w-full" preserveAspectRatio="none">
-                  <path d="M2 9C60 3 140 2 298 7" stroke="var(--color-gold-400)" strokeWidth="4" fill="none" strokeLinecap="round" />
-                </svg>
+              <span className="animate-rise block" style={delay(100)}>
+                La comptabilité
               </span>
-              .
+              <span className="animate-rise block" style={delay(200)}>
+                tunisienne,{' '}
+              </span>
+              <span className="animate-rise inline-block" style={delay(300)}>
+                <span className="relative whitespace-nowrap bg-gradient-to-r from-brand-900 via-brand-600 to-brand-900 bg-clip-text text-transparent">
+                  enfin simple
+                  <svg aria-hidden viewBox="0 0 300 12" className="absolute -bottom-1.5 left-0 w-full" preserveAspectRatio="none">
+                    <path d="M2 9C60 3 140 2 298 7" stroke="var(--color-gold-500)" strokeWidth="4" fill="none" strokeLinecap="round" className="animate-draw" />
+                  </svg>
+                </span>
+                .
+              </span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+            <p className="animate-rise mt-6 max-w-xl text-lg leading-relaxed text-muted" style={delay(420)}>
               Raqib réunit saisie, banque, fiscalité et états financiers dans un espace clair, pensé pour les entreprises et les
               cabinets comptables en Tunisie.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link to="/inscription" className="btn btn-primary btn-lg">
-                Commencer gratuitement <ArrowRight className="size-4" />
+            <div className="animate-rise mt-8 flex flex-wrap items-center gap-3" style={delay(520)}>
+              <Link to="/inscription" className="btn btn-primary btn-lg shine group shadow-[0_10px_24px_-12px_rgb(11_31_68/0.7)]">
+                Commencer gratuitement <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link to="/connexion" className="btn btn-secondary btn-lg">
                 Se connecter
               </Link>
             </div>
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
-              {['Sans carte bancaire', 'Plan SCE installé en un clic', 'Import depuis Excel'].map((t) => (
-                <li key={t} className="flex items-center gap-1.5">
+              {['Sans carte bancaire', 'Plan SCE installé en un clic', 'Import depuis Excel'].map((t, i) => (
+                <li key={t} className="animate-rise flex items-center gap-1.5" style={delay(640 + i * 90)}>
                   <Check className="size-4 text-success-600" /> {t}
                 </li>
               ))}
@@ -185,61 +249,102 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Audience strip ─── */}
-      <section className="border-y border-line bg-surface">
+      {/* ─── Ticker ─── */}
+      <div className="relative border-y border-line bg-surface py-4 [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
+        <div className="animate-marquee flex w-max gap-10 hover:[animation-play-state:paused]">
+          {[...TICKER, ...TICKER].map((t, i) => (
+            <span key={i} className="flex items-center gap-3 whitespace-nowrap text-sm font-semibold text-ink-soft">
+              <Sparkles className="size-4 text-gold-500" />
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── Audience ─── */}
+      <section className="bg-surface">
         <div className="mx-auto grid max-w-6xl gap-px px-4 md:grid-cols-3 md:px-6">
           {[
             { icon: Building, title: 'Entreprises', text: 'Tenez votre comptabilité en interne, sans jargon inutile.' },
             { icon: Briefcase, title: 'Cabinets comptables', text: 'Tous vos dossiers clients et leurs échéances au même endroit.' },
             { icon: Banknote, title: 'Experts-comptables', text: 'Révision, états financiers et piste d’audit complète.' },
-          ].map((a) => (
-            <div key={a.title} className="flex items-start gap-4 py-7 md:px-6 first:md:pl-0">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+          ].map((a, i) => (
+            <Reveal key={a.title} delay={i * 120} className="group flex items-start gap-4 py-8 md:px-6 first:md:pl-0">
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 transition-all duration-300 group-hover:-rotate-6 group-hover:bg-brand-900 group-hover:text-gold-400">
                 <a.icon className="size-5" />
               </span>
               <div>
                 <p className="font-bold">{a.title}</p>
                 <p className="mt-0.5 text-sm text-muted">{a.text}</p>
               </div>
-            </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── Numbers ─── */}
+      <section className="border-y border-line bg-paper">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-12 md:grid-cols-4 md:px-6">
+          {[
+            { value: 7, label: 'classes du SCE prêtes', suffix: '' },
+            { value: 300, label: 'comptes de référence', suffix: '+' },
+            { value: 3, label: 'taux de TVA gérés', suffix: '' },
+            { value: 3, label: 'décimales pour le dinar', suffix: '' },
+          ].map((s, i) => (
+            <Reveal key={s.label} delay={i * 100} className="text-center">
+              <p className="text-4xl font-extrabold tracking-tight text-brand-900 md:text-5xl">
+                <CountUp value={s.value} />
+                <span className="text-gold-500">{s.suffix}</span>
+              </p>
+              <p className="mt-1 text-sm font-medium text-muted">{s.label}</p>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* ─── Features ─── */}
       <section id="fonctionnalites" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 md:px-6">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-600">Fonctionnalités</p>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Moins de saisie, plus de contrôle.</h2>
           <p className="mt-4 text-lg text-muted">
             Chaque écran va à l’essentiel. Les calculs fiscaux, la numérotation et les contrôles d’équilibre sont faits pour vous.
           </p>
-        </div>
+        </Reveal>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="card group p-6 transition-shadow hover:shadow-pop">
-              <div className="flex items-center justify-between">
-                <span className="grid size-11 place-items-center rounded-xl bg-brand-600 text-white">
-                  <f.icon className="size-5" />
-                </span>
-                {f.soon && (
-                  <span className="rounded-full bg-gold-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold-600">
-                    Bientôt
+          {FEATURES.map((f, i) => (
+            <Reveal key={f.title} delay={(i % 3) * 110}>
+              <div className="card group relative h-full overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-200 hover:shadow-pop">
+                <div
+                  aria-hidden
+                  className="absolute -right-16 -top-16 size-40 rounded-full bg-gold-100 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                />
+                <div className="relative flex items-center justify-between">
+                  <span className="grid size-11 place-items-center rounded-xl bg-gradient-to-br from-brand-700 to-brand-950 text-white shadow-[0_8px_18px_-10px_rgb(11_31_68/0.9)] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                    <f.icon className="size-5" />
                   </span>
-                )}
+                  {f.soon && (
+                    <span className="rounded-full bg-gold-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold-700">
+                      Bientôt
+                    </span>
+                  )}
+                </div>
+                <h3 className="relative mt-5 text-lg font-bold">{f.title}</h3>
+                <p className="relative mt-2 text-[15px] leading-relaxed text-muted">{f.text}</p>
               </div>
-              <h3 className="mt-5 text-lg font-bold">{f.title}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-muted">{f.text}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* ─── Cabinets ─── */}
-      <section id="cabinets" className="scroll-mt-20 bg-brand-950 text-white">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-24 md:px-6 lg:grid-cols-2">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-200">Pour les cabinets</p>
+      <section id="cabinets" className="relative scroll-mt-20 overflow-hidden bg-brand-950 text-white">
+        <div aria-hidden className="bg-grid-light absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+        <div aria-hidden className="animate-drift absolute -left-24 top-10 size-96 rounded-full bg-brand-600/30 blur-3xl" />
+        <div aria-hidden className="animate-drift absolute -bottom-24 right-0 size-80 rounded-full bg-gold-500/20 blur-3xl" style={delay(-9000)} />
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-24 md:px-6 lg:grid-cols-2">
+          <Reveal>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-400">Pour les cabinets</p>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Tous vos clients, un seul tableau de bord.</h2>
             <p className="mt-4 text-lg text-white/70">
               Raqib signale ce qui demande votre attention dans chaque dossier : déclarations à déposer, écritures à valider,
@@ -252,111 +357,95 @@ export default function LandingPage() {
                 'Échéances fiscales de tous les clients sur un écran',
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3 text-white/85">
-                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold-500">
-                    <Check className="size-3.5" />
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold-500 text-brand-950">
+                    <Check className="size-3.5" strokeWidth={3} />
                   </span>
                   {t}
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-            <div className="flex items-center justify-between px-1 pb-3">
-              <p className="font-semibold">Portefeuille · 4 sociétés</p>
-              <p className="text-xs text-white/50">Exemple illustratif</p>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.6)] backdrop-blur">
+              <div className="flex items-center justify-between px-1 pb-3">
+                <p className="font-semibold">Portefeuille · 4 sociétés</p>
+                <p className="text-xs text-white/50">Exemple illustratif</p>
+              </div>
+              <PortfolioRows />
             </div>
-            <div className="space-y-2">
-              {[
-                { name: 'Atelier Carthage', task: 'Déclaration mensuelle à déposer', tone: 'clay' },
-                { name: 'Oliveraie du Sahel', task: '12 relevés à rapprocher', tone: 'brand' },
-                { name: 'Studio Médina', task: 'À jour', tone: 'ok' },
-                { name: 'Transports Cap Bon', task: 'Exercice 2025 à clôturer', tone: 'clay' },
-              ].map((r) => (
-                <div key={r.name} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-lg bg-white/10 text-sm font-bold">{r.name[0]}</span>
-                    <span className="font-medium">{r.name}</span>
-                  </div>
-                  <span
-                    className={clsx(
-                      'rounded-full px-2.5 py-1 text-xs font-semibold',
-                      r.tone === 'clay' && 'bg-gold-500/20 text-gold-200',
-                      r.tone === 'brand' && 'bg-brand-400/20 text-brand-200',
-                      r.tone === 'ok' && 'bg-emerald-400/15 text-emerald-200',
-                    )}
-                  >
-                    {r.task}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── Steps ─── */}
-      <section id="etapes" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 md:px-6">
-        <div className="text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-600">Comment ça marche</p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Opérationnel en une matinée.</h2>
-        </div>
-        <ol className="mt-14 grid gap-6 md:grid-cols-3">
-          {STEPS.map(([title, text], i) => (
-            <li key={title} className="relative rounded-2xl border border-line bg-surface p-7">
-              <span className="num font-mono text-sm font-semibold text-gold-600">0{i + 1}</span>
-              <h3 className="mt-3 text-lg font-bold">{title}</h3>
-              <p className="mt-2 text-[15px] text-muted">{text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <Steps />
 
       {/* ─── FAQ ─── */}
       <section id="faq" className="scroll-mt-20 border-t border-line bg-surface">
         <div className="mx-auto max-w-3xl px-4 py-24 md:px-6">
-          <h2 className="text-center text-3xl font-extrabold tracking-tight md:text-4xl">Questions fréquentes</h2>
-          <div className="mt-12 divide-y divide-line rounded-2xl border border-line">
-            {FAQ.map(([q, a], i) => (
-              <div key={q}>
-                <button
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left font-semibold"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  aria-expanded={openFaq === i}
-                >
-                  {q}
-                  <ChevronDown className={clsx('size-5 shrink-0 text-faint transition-transform', openFaq === i && 'rotate-180')} />
-                </button>
-                {openFaq === i && <p className="-mt-1 px-6 pb-5 text-[15px] leading-relaxed text-muted">{a}</p>}
-              </div>
-            ))}
-          </div>
+          <Reveal as="h2" className="text-center text-3xl font-extrabold tracking-tight md:text-4xl">
+            Questions fréquentes
+          </Reveal>
+          <Reveal delay={100} className="mt-12 divide-y divide-line rounded-2xl border border-line">
+            {FAQ.map(([q, a], i) => {
+              const open = openFaq === i;
+              return (
+                <div key={q}>
+                  <button
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left font-semibold transition-colors hover:text-brand-600"
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    aria-expanded={open}
+                  >
+                    {q}
+                    <ChevronDown className={clsx('size-5 shrink-0 text-faint transition-transform duration-300', open && 'rotate-180 text-gold-600')} />
+                  </button>
+                  <div className={clsx('grid transition-[grid-template-rows] duration-300 ease-out', open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
+                    <div className="overflow-hidden">
+                      <p className="px-6 pb-5 text-[15px] leading-relaxed text-muted">{a}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </Reveal>
         </div>
       </section>
 
       {/* ─── CTA ─── */}
       <section className="mx-auto max-w-6xl px-4 py-20 md:px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-brand-600 px-8 py-14 text-center text-white md:px-16">
-          <div aria-hidden className="absolute -right-20 -top-20 size-72 rounded-full bg-gold-400/40 blur-3xl" />
-          <p className="relative font-arabic text-3xl text-white/90" lang="ar" dir="rtl">
-            رقيب
-          </p>
-          <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Vos comptes, sous bonne garde.</h2>
-          <p className="relative mx-auto mt-4 max-w-xl text-white/80">Créez votre espace en quelques minutes, sans carte bancaire.</p>
-          <Link to="/inscription" className="btn btn-lg relative mt-8 bg-white text-brand-700 hover:bg-brand-50">
-            Essai gratuit <ArrowRight className="size-4" />
-          </Link>
-        </div>
+        <Reveal>
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 px-8 py-16 text-center text-white md:px-16">
+            <div aria-hidden className="bg-grid-light absolute inset-0" />
+            <div aria-hidden className="animate-drift absolute -right-20 -top-20 size-72 rounded-full bg-gold-500/35 blur-3xl" />
+            <div aria-hidden className="animate-drift absolute -bottom-24 -left-10 size-72 rounded-full bg-brand-500/40 blur-3xl" style={delay(-7000)} />
+            <p className="animate-float relative font-arabic text-4xl text-gold-400" lang="ar" dir="rtl">
+              رقيب
+            </p>
+            <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Vos comptes, sous bonne garde.</h2>
+            <p className="relative mx-auto mt-4 max-w-xl text-white/75">Créez votre espace en quelques minutes, sans carte bancaire.</p>
+            <Link to="/inscription" className="btn btn-gold btn-lg shine group relative mt-8 font-bold">
+              Essai gratuit <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </Reveal>
       </section>
 
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted md:flex-row md:px-6">
           <Logo />
           <p>
-            <span className="font-arabic" lang="ar">رقيب</span> · celui qui veille sur vos comptes · © {new Date().getFullYear()} Raqib
+            <span className="font-arabic" lang="ar">
+              رقيب
+            </span>{' '}
+            · celui qui veille sur vos comptes · © {new Date().getFullYear()} Raqib
           </p>
           <div className="flex gap-5">
-            <a href="#faq" className="hover:text-ink">FAQ</a>
-            <Link to="/connexion" className="hover:text-ink">Connexion</Link>
+            <a href="#faq" className="hover:text-ink">
+              FAQ
+            </a>
+            <Link to="/connexion" className="hover:text-ink">
+              Connexion
+            </Link>
           </div>
         </div>
       </footer>
@@ -364,50 +453,196 @@ export default function LandingPage() {
   );
 }
 
-/** Product preview built in HTML (no screenshot): a slice of the real plan comptable. */
+/** Product preview built in HTML (no screenshot): a slice of the real plan comptable, gently "alive". */
 function HeroPreview() {
   const rows = [
     { n: '40', l: 'Fournisseurs et comptes rattachés', d: 0, g: true },
-    { n: '401', l: 'Fournisseurs d’exploitation', d: 1, g: true },
-    { n: '4011', l: 'Fournisseurs locaux', d: 2, tag: 'Tiers' },
-    { n: '4012', l: 'Fournisseurs étrangers', d: 2, tag: 'Tiers' },
-    { n: '436', l: 'État, taxes sur le chiffre d’affaires', d: 1, g: true },
-    { n: '4365', l: 'TVA collectée', d: 2 },
-    { n: '4366', l: 'TVA déductible', d: 2 },
+    { n: '40100000', l: 'Fournisseurs d’exploitation', d: 1, tag: 'Tiers' },
+    { n: '40100186', l: 'Fournisseur Sahel Équipements', d: 1, tag: 'Tiers' },
+    { n: '43', l: 'État et collectivités publiques', d: 0, g: true },
+    { n: '43650000', l: 'TVA collectée', d: 1 },
+    { n: '43660000', l: 'TVA déductible', d: 1 },
+    { n: '43200000', l: 'Retenues à la source', d: 1 },
   ];
+  const movable = rows.map((r, i) => (r.g ? -1 : i)).filter((i) => i >= 0);
+  const [active, setActive] = useState(movable[0]);
+
+  // The selection walks down the accounts, like someone reviewing the plan.
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    let k = 0;
+    const id = setInterval(() => {
+      k = (k + 1) % movable.length;
+      setActive(movable[k]);
+    }, 2200);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="relative sm:mb-20 lg:mb-16">
-      <div className="card overflow-hidden shadow-pop">
-        <div className="flex items-center gap-2 border-b border-line bg-paper px-4 py-3">
-          <span className="size-2.5 rounded-full bg-line-strong" />
-          <span className="size-2.5 rounded-full bg-line-strong" />
-          <span className="size-2.5 rounded-full bg-line-strong" />
-          <span className="ml-3 text-xs font-semibold text-muted">Plan comptable · Classe 4 — Tiers</span>
-        </div>
-        <div className="divide-y divide-line">
-          {rows.map((r) => (
-            <div key={r.n} className="flex items-center gap-3 px-4 py-2.5 text-sm">
-              <span className={clsx('num w-14 shrink-0 font-mono text-[13px]', r.g ? 'font-semibold' : 'text-ink-soft')} style={{ paddingLeft: r.d * 8 }}>
-                {r.n}
-              </span>
-              <span className={clsx('flex-1 truncate', r.g && 'font-semibold')}>{r.l}</span>
-              {r.tag && <span className="rounded-md bg-gold-50 px-1.5 py-0.5 text-[11px] font-semibold text-gold-700">{r.tag}</span>}
-              <span className={clsx('text-xs', r.g ? 'text-faint' : 'text-success-600')}>{r.g ? 'Regroupement' : 'Mouvement'}</span>
-            </div>
-          ))}
+    <div className="animate-rise relative sm:mb-20 lg:mb-16" style={delay(350)}>
+      <div className="animate-float" style={{ animationDuration: '9s' }}>
+        <div className="card overflow-hidden shadow-[0_40px_80px_-40px_rgb(11_31_68/0.45)]">
+          <div className="flex items-center gap-2 border-b border-line bg-[#F7F9FC] px-4 py-3">
+            <span className="size-2.5 rounded-full bg-[#F87171]/70" />
+            <span className="size-2.5 rounded-full bg-gold-400/80" />
+            <span className="size-2.5 rounded-full bg-success-600/50" />
+            <span className="ml-3 text-xs font-semibold text-muted">Plan comptable · Classe 4 — Tiers</span>
+          </div>
+          <div className="divide-y divide-line">
+            {rows.map((r, i) => (
+              <div
+                key={r.n}
+                className={clsx(
+                  'animate-slide-in flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-500',
+                  i === active ? 'bg-brand-50 shadow-[inset_3px_0_0_var(--color-gold-500)]' : r.g && 'bg-[#FBFCFE]',
+                )}
+                style={delay(600 + i * 90)}
+              >
+                <span
+                  className={clsx('num w-[76px] shrink-0 font-mono text-[12.5px]', r.g ? 'font-bold' : 'text-ink-soft')}
+                  style={{ paddingLeft: r.d * 10 }}
+                >
+                  {r.n}
+                </span>
+                <span className={clsx('flex-1 truncate', r.g && 'font-bold')}>{r.l}</span>
+                {r.tag && <span className="rounded-md bg-gold-50 px-1.5 py-0.5 text-[11px] font-semibold text-gold-700">{r.tag}</span>}
+                <span
+                  className={clsx(
+                    'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                    r.g ? 'bg-ink/[0.05] text-muted' : 'bg-brand-50 text-brand-700',
+                  )}
+                >
+                  {r.g ? 'Regroupement' : 'Mouvement'}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="absolute -bottom-24 -left-4 hidden w-60 rounded-2xl border border-line bg-surface p-4 shadow-pop sm:block md:-left-10">
-        <p className="text-xs font-semibold uppercase tracking-wide text-faint">Saisie rapide</p>
-        <div className="mt-2 space-y-1.5 text-sm">
-          <div className="flex justify-between"><span className="text-muted">Montant TTC</span><span className="num font-semibold">1 191,000</span></div>
-          <div className="flex justify-between"><span className="text-muted">TVA 19 %</span><span className="num">190,000</span></div>
-          <div className="flex justify-between"><span className="text-muted">Timbre</span><span className="num">1,000</span></div>
+
+      <div
+        className="animate-rise absolute -right-3 -top-8 hidden items-center gap-2.5 rounded-2xl border border-line bg-surface px-3.5 py-2.5 shadow-pop sm:flex md:-right-8"
+        style={delay(1300)}
+      >
+        <span className="relative grid size-8 place-items-center rounded-full bg-success-50 text-success-600">
+          <BadgeCheck className="size-4" />
+        </span>
+        <span className="text-xs leading-tight">
+          <span className="block font-bold">Déclaration de mai</span>
+          <span className="text-muted">TVA et retenues prêtes</span>
+        </span>
+      </div>
+
+      <div className="animate-rise absolute -bottom-24 -left-4 hidden w-64 sm:block md:-left-10" style={delay(1100)}>
+        <div className="animate-float rounded-2xl border border-line bg-surface p-4 shadow-pop" style={delay(-3000)}>
+          <p className="text-xs font-semibold uppercase tracking-wide text-faint">Saisie rapide</p>
+          <div className="mt-2 space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted">Montant TTC</span>
+              <CountUp value={1191} className="font-semibold" format={money} />
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">TVA 19 %</span>
+              <CountUp value={190} format={money} />
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">Timbre</span>
+              <span className="num">1,000</span>
+            </div>
+          </div>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-success-50">
+            <div className="animate-grow-x h-full rounded-full bg-success-600" style={delay(1500)} />
+          </div>
+          <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-success-600">
+            <Check className="size-3.5" /> Écriture équilibrée
+          </p>
         </div>
-        <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-success-600">
-          <Check className="size-3.5" /> Écriture équilibrée
-        </p>
       </div>
     </div>
+  );
+}
+
+/** 1191 → "1 191,000" (Tunisian dinar, three decimals). */
+function money(n: number) {
+  return `${Math.round(n).toLocaleString('fr-FR').replace(/ | /g, ' ')},000`;
+}
+
+function PortfolioRows() {
+  const [ref, inView] = useInView<HTMLDivElement>();
+  const rows = [
+    { name: 'Atelier Carthage', task: 'Déclaration mensuelle à déposer', tone: 'urgent' },
+    { name: 'Oliveraie du Sahel', task: '12 relevés à rapprocher', tone: 'info' },
+    { name: 'Studio Médina', task: 'À jour', tone: 'ok' },
+    { name: 'Transports Cap Bon', task: 'Exercice 2025 à clôturer', tone: 'urgent' },
+  ];
+  return (
+    <div ref={ref} className="space-y-2">
+      {rows.map((r, i) => (
+        <div
+          key={r.name}
+          className={clsx(
+            'flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-4 py-3 transition-colors hover:bg-white/[0.1]',
+            inView ? 'animate-slide-in' : 'opacity-0',
+          )}
+          style={delay(200 + i * 140)}
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-lg bg-white/10 text-sm font-bold">{r.name[0]}</span>
+            <span className="font-medium">{r.name}</span>
+          </div>
+          <span
+            className={clsx(
+              'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
+              r.tone === 'urgent' && 'bg-gold-500/20 text-gold-200',
+              r.tone === 'info' && 'bg-brand-400/20 text-brand-200',
+              r.tone === 'ok' && 'bg-emerald-400/15 text-emerald-200',
+            )}
+          >
+            {r.tone === 'urgent' && (
+              <span className="relative flex size-1.5">
+                <span className="animate-ping-soft absolute inset-0 rounded-full bg-gold-400" />
+                <span className="relative size-1.5 rounded-full bg-gold-400" />
+              </span>
+            )}
+            {r.task}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Steps() {
+  const [ref, inView] = useInView<HTMLOListElement>();
+  return (
+    <section id="etapes" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 md:px-6">
+      <Reveal className="text-center">
+        <p className="text-sm font-bold uppercase tracking-[0.16em] text-gold-600">Comment ça marche</p>
+        <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Opérationnel en une matinée.</h2>
+      </Reveal>
+      <ol ref={ref} className="relative mt-14 grid gap-6 md:grid-cols-3">
+        {/* Line linking the three steps, drawn when the block appears. */}
+        <div aria-hidden className="absolute left-[16%] right-[16%] top-[48px] hidden h-0.5 bg-line md:block">
+          <div className={clsx('h-full bg-gradient-to-r from-gold-500 to-brand-600', inView ? 'animate-grow-x' : 'scale-x-0')} style={delay(300)} />
+        </div>
+        {STEPS.map(([title, text], i) => (
+          <li
+            key={title}
+            className={clsx(
+              'relative rounded-2xl border border-line bg-surface p-7 transition-shadow hover:shadow-pop',
+              inView ? 'animate-rise' : 'opacity-0',
+            )}
+            style={delay(i * 220)}
+          >
+            <span className="relative z-10 grid size-10 place-items-center rounded-full bg-brand-900 font-mono text-sm font-bold text-gold-400 ring-4 ring-paper">
+              0{i + 1}
+            </span>
+            <h3 className="mt-4 text-lg font-bold">{title}</h3>
+            <p className="mt-2 text-[15px] text-muted">{text}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
