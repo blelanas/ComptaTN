@@ -1,0 +1,44 @@
+# Chaque pull request est déployée sur un lien de prévisualisation Firebase
+# (valable 30 jours). Le lien est publié en commentaire sur la PR.
+name: Prévisualisation (PR)
+
+on: pull_request
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    # Les PR venant d'un fork n'ont pas accès aux secrets.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
+
+      # L'identifiant du projet Firebase est lu dans la clé du compte de service.
+      - id: firebase
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: echo "project=$(echo "$SERVICE_ACCOUNT" | jq -r .project_id)" >> "$GITHUB_OUTPUT"
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ steps.firebase.outputs.project }}
+          expires: 30d
