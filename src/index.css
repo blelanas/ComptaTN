@@ -202,9 +202,67 @@
   background-size: 44px 44px;
 }
 
+/* Colourful extras: moving gradients, rotating words, orbiting bubbles. */
+@keyframes gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes word-in {
+  0% { opacity: 0; transform: translateY(0.45em) rotateX(-60deg); filter: blur(4px); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes bob {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(6px, -12px) rotate(6deg); }
+  50% { transform: translate(-4px, -20px) rotate(-4deg); }
+  75% { transform: translate(-8px, -8px) rotate(3deg); }
+}
+@keyframes hue {
+  to { filter: hue-rotate(360deg); }
+}
+
+.animate-gradient { background-size: 220% 220%; animation: gradient-pan 8s ease-in-out infinite; }
+.animate-spin-slow { animation: spin 14s linear infinite; }
+.animate-word-in { display: inline-block; animation: word-in 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; transform-origin: 50% 100%; }
+.animate-bob { animation: bob 7s ease-in-out infinite; animation-delay: var(--d, 0ms); }
+
+/* Card with a slowly rotating multicolour border. */
+.glow-border { position: relative; isolation: isolate; }
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle, 0deg), #d4a12e, #f43f5e, #8b5cf6, #0ea5e9, #10b981, #d4a12e);
+  animation: spin-angle 6s linear infinite;
+}
+.glow-border::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  z-index: -2;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle, 0deg), #d4a12e66, #f43f5e44, #8b5cf644, #0ea5e944, #10b98144, #d4a12e66);
+  filter: blur(22px);
+  animation: spin-angle 6s linear infinite;
+}
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes spin-angle {
+  to { --angle: 360deg; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise, .animate-slide-in, .animate-fade, .animate-float, .animate-drift, .animate-marquee,
-  .animate-ping-soft, .animate-grow-x, .animate-grow-y, .animate-flash-row, .shine::after {
+  .animate-ping-soft, .animate-grow-x, .animate-grow-y, .animate-flash-row, .shine::after,
+  .animate-gradient, .animate-spin-slow, .animate-word-in, .animate-bob, .glow-border::before, .glow-border::after {
     animation: none !important;
   }
   .animate-draw { animation: none; stroke-dashoffset: 0; }
